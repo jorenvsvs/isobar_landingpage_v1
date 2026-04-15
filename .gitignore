@@ -1,0 +1,33 @@
+# Ignore everything in Assets by default
+Assets/*
+Assets/**/*
+
+# Allowlist only files referenced in index.html
+!Assets/ISOBAR_5day_indicators.svg
+!Assets/ISOBAR_icon_Live_tide_icon.svg
+!Assets/ISOBAR_icon_Live_wind_icon.svg
+!Assets/ISOBAR_icon_Swell_forecast_icon.svg
+!Assets/ISOBAR_icon_Weather_forecast_icon.svg
+!Assets/ISOBAR_icon_Wind_forecast_icon.svg
+!Assets/Isobar_Feature_stills_Features_Close_A_V01_0000.jpg
+!Assets/Isobar_Feature_stills_Features_Close_C_V01_0000.jpg
+!Assets/Isobar_Feature_stills_Features_Close_D_V01_0000.jpg
+!Assets/Isobar_Feature_stills_Features_Close_E_V01_0000.jpg
+!Assets/Isobar_Feature_stills_Features_Close_H_V01_0000.jpg
+!Assets/Isobar_Herovideo_SWELL_001.mp4
+!Assets/Isobar_Herovideo_WEATHER_001.mp4
+!Assets/Isobar_Herovideo_WIND_001.mp4
+!Assets/compressed_jpg/
+!Assets/compressed_jpg/ISOBAR_V03_camI_FORECAST_SWELL_V04.jpg
+!Assets/compressed_jpg/ISOBAR_V03_camI_FORECAST_WEATHER_V04.jpg
+!Assets/compressed_jpg/ISOBAR_V03_camI_FORECAST_WIND_V04.jpg
+!Assets/compressed_jpg/ISOBAR_V03_camI_LIVE_TIDE_V04.jpg
+!Assets/compressed_jpg/ISOBAR_V03_camI_LIVE_WIND_V04.jpg
+!Assets/compressed_jpg/ISOBAR_V05_001_0000.jpg
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

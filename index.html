@@ -1,0 +1,2334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISOBAR by Almanac</title>
+  <meta name="description" content="Weather forecast lamp for wind, swell and weather. Built for people who live by the forecast.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Faustina:wght@400;500;600;700;800&family=Josefin+Sans:wght@100;200;300;400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0b0b0b;
+      --surface: #131313;
+      --border:  #272523;
+      --text:    #dbd6cc;
+      --muted:   #685f57;
+      --dim:     #1c1b19;
+      --accent:  #25D1C9;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Faustina', serif;
+      font-weight: 400;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── ISOBAR BG CANVAS (below hero) ─────────── */
+    #isobarCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    nav, .hero, .lamp-section, .rule, .desc-block, .models-block, .feature-section, .details-section, .app-section, .waitlist-block, footer {
+      position: relative;
+      z-index: 10;
+    }
+
+    /* ── NAV ───────────────────────────────────── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 1.5rem 2.5rem;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: baseline;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .nav-logo svg {
+      height: 100%;
+      width: auto;
+    }
+
+    .logo-almanac {
+      font-family: 'Faustina', serif;
+      font-weight: 800;
+      font-size: 1.275rem;
+      color: rgba(221,213,196,0.65);
+      letter-spacing: 0.03em;
+    }
+
+    .logo-works {
+      font-family: 'Faustina', serif;
+      font-weight: 300;
+      font-size: 1.275rem;
+      letter-spacing: 0.03em;
+      color: rgba(221,213,196,0.65);
+    }
+
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-menu a {
+      font-family: 'Faustina', serif;
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: rgba(221,213,196,0.65);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-menu a:hover { color: var(--text); }
+
+    /* ── HERO ──────────────────────────────────── */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 560px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 7rem;
+    }
+
+    /* ── HERO STAGE ────────────────────────────
+       Fixed 2560×1440 canvas. JS scales it to cover
+       the viewport (same maths as object-fit: cover).
+       transform-origin: top left so left/top offsets
+       work intuitively.                             */
+    .hero-stage {
+      position: absolute;
+      width: 2560px;
+      height: 1440px;
+      transform-origin: top left;
+      overflow: hidden;
+      /* left / top / transform set by JS */
+    }
+
+    /* The photograph */
+    .hero-vids {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+    .hero-vids::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 100px;
+      background: linear-gradient(to bottom, transparent 0%, var(--bg) 100%);
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hero-vid {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    #vid-wind    { z-index: 1; opacity: 1; }
+    #vid-swell   { z-index: 2; }
+    #vid-weather { z-index: 3; opacity: 1; }
+
+    /* Dark band behind nav text — top */
+    .hero-overlay-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 45%;
+      background: linear-gradient(
+        to bottom,
+        rgba(7,9,15,0.82) 0%,
+        rgba(7,9,15,0.55) 40%,
+        transparent 100%
+      );
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Fade to page bg at bottom — kept short so lamp stays fully visible */
+    .hero-overlay-bottom {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 28%;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(7,9,15,0.55) 50%,
+        rgba(7,9,15,1) 100%
+      );
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Text content sits on top of overlays */
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero-eyebrow {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: rgba(221,213,196,0.65);
+      margin-bottom: 150px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.1s forwards;
+    }
+
+    .hero-title {
+      margin-bottom: 150px;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.25s forwards;
+      line-height: 1;
+    }
+
+    #isobarLetterCanvas {
+      display: block;
+      height: clamp(2.36rem, 5.6vw, 4.375rem);
+      width: auto;
+    }
+
+    .hero-title em { font-style: normal; font-weight: 700; }
+
+    .hero-sub {
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.4s forwards;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: rgba(0,0,0,0.12);
+      border: 1px solid rgba(221,213,196,0.18);
+      border-radius: 11px;
+      padding: 3px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .forecast-btn {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(11,11,11,0.45);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 0.38rem 0.9rem;
+      padding-top: calc(0.38rem + 3px);
+      cursor: pointer;
+      transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .forecast-btn:hover {
+      color: rgba(11,11,11,0.7);
+    }
+
+    .forecast-btn.active {
+      background: rgba(221,213,196,0.45);
+      color: rgba(11,11,11,0.85);
+      border-color: rgba(221,213,196,0.3);
+    }
+
+    /* ── LAMP BAR ──────────────────────────────── */
+    .lamp-section {
+      padding: 3rem 3rem 5rem;
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.55s forwards;
+    }
+
+    .lamp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.65rem;
+    }
+
+    .lamp-label { font-size: 0.75rem; letter-spacing: 0.04em;  color: var(--muted); }
+    .lamp-live  { font-size: 0.75rem; letter-spacing: 0.02em; color: var(--accent); opacity: 0.7; }
+
+    .lamp-bar { width: 100%; height: 64px; border-radius: 5px; }
+
+    .lamp-ticks {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 2px;
+      margin-top: 0.5rem;
+    }
+
+    .lamp-tick { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .tick-line  { width: 1px; height: 4px; background: var(--border); }
+    .tick-label { font-size: 0.68rem; letter-spacing: 0.02em; color: var(--muted);  }
+
+    /* ── SECTION RULE ──────────────────────────── */
+    .rule {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0 3rem;
+      margin: 3rem 0;
+    }
+
+    .rule-line  { flex: 1; height: 1px; background: var(--border); }
+    .rule-label { font-family: 'Josefin Sans', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+
+    /* ── DESCRIPTION ───────────────────────────── */
+    .desc-block {
+      padding: 12.5rem 3rem 6rem;
+      max-width: 760px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .description {
+      font-family: 'Faustina', serif;
+      font-weight: 300;
+      font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+    .description em { font-style: italic; color: var(--accent); }
+
+    /* ── MODELS ────────────────────────────────── */
+    /* ── MODELS FULL IMAGE ─────────────────────── */
+    .models-full-img {
+      overflow: hidden;
+      aspect-ratio: 4/1;
+    }
+    .models-full-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    /* ── MODELS BLOCK ──────────────────────────── */
+    .models-block-inner { max-width: 1200px; margin: 0 auto; }
+
+    .models-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 2rem;
+    }
+
+    .model-card {
+      background: var(--surface);
+      padding: 2rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      border-right: 1px solid var(--border);
+    }
+
+    .model-card:last-child { border-right: none; }
+
+    .model-type  { font-size: 0.82rem; letter-spacing: 0.04em;  color: var(--muted); }
+    .model-name  { font-family: 'Faustina', serif; font-size: 1.5rem; font-weight: 400; color: var(--text); letter-spacing: 0.02em; margin-bottom: 0.2rem; }
+    .model-bar   { margin: 0.3rem 0 0.6rem; }
+    .model-days  { font-size: 0.82rem; letter-spacing: 0.03em; color: var(--muted);  margin-top: auto; }
+    .model-price { font-family: 'Faustina', serif; font-size: 1.15rem; font-weight: 300; color: var(--text); margin-top: 0.4rem; }
+
+    /* ── APP SECTION ───────────────────────────── */
+    .app-section { padding: 0 3rem 3rem; }
+
+    .app-intro {
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+      text-align: center;
+    }
+
+    .app-table {
+      max-width: 720px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .app-table-header {
+      display: grid;
+      grid-template-columns: 1fr 120px 160px;
+      background: var(--dim);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 1.5rem;
+      gap: 0;
+    }
+
+    .app-row {
+      display: grid;
+      grid-template-columns: 1fr 120px 160px;
+      padding: 0.85rem 1.5rem;
+      border-bottom: 1px solid var(--dim);
+      align-items: center;
+      background: var(--surface);
+    }
+
+    .app-row.last { border-bottom: none; }
+    .app-row:nth-child(even) { background: var(--bg); }
+
+    .app-col-label {
+      font-family: 'Faustina', serif;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    .app-col {
+      text-align: center;
+    }
+
+    .free-col { border-left: 1px solid var(--border); }
+    .premium-col { border-left: 1px solid var(--border); }
+
+    .tier-name {
+      font-family: 'Faustina', serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+
+    .tier-name.accent { color: var(--accent); }
+
+    .tier-price-sm {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+
+    .tier-price-sm span {
+      opacity: 0.6;
+    }
+
+    .check {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .check.accent { color: var(--accent); }
+
+    .dash {
+      font-size: 0.8rem;
+      color: var(--border);
+    }
+
+    @media (max-width: 640px) {
+      .app-table-header, .app-row { grid-template-columns: 1fr 70px 100px; }
+      .app-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+    }
+
+    .model-icon {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* ── GRADIENT BLOCKS ───────────────────────── */
+    .gradient-block {
+      border-radius: 8px;
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .blue-teal {
+      background: linear-gradient(135deg, #1a6adb 0%, #25D1C9 100%);
+    }
+
+    .orange-red {
+      background: linear-gradient(135deg, #f07820 0%, #c01830 100%);
+    }
+
+    .dark-teal {
+      background: linear-gradient(135deg, #0a1a3a 0%, #25D1C9 100%);
+    }
+
+    .gradient-lamp-wrap {
+      width: 72%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gl-bar {
+      width: 100%;
+      height: 40px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.18);
+      border: 1.5px solid rgba(255,255,255,0.45);
+      backdrop-filter: blur(4px);
+      position: relative;
+    }
+
+    .gl-bar::before {
+      content: '';
+      position: absolute;
+      inset: 6px 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    /* ── RENDER IMAGES ─────────────────────────── */
+    .render-block {
+      background: var(--surface);
+      overflow: hidden;
+      aspect-ratio: 4/1;
+    }
+    .render-block img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    /* ── LIVE DATA PAIR ────────────────────────── */
+    .live-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      padding: 3rem 0;
+    }
+
+    .live-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .live-card-img {
+      overflow: hidden;
+      height: 480px;
+      max-height: 60vh;
+      border-radius: 6px;
+      margin-bottom: 2rem;
+    }
+
+    .live-card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    @media (max-width: 640px) {
+      .live-pair {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    .detail-img-real {
+      overflow: hidden;
+      aspect-ratio: 3/2;
+    }
+    .detail-img-real img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── LIFESTYLE IMAGE ───────────────────────── */
+    .lifestyle-wrap {
+      overflow: hidden;
+      height: 780px;
+    }
+    .lifestyle-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── FEATURE SECTIONS ──────────────────────── */
+    .feature-section { padding: 0 3rem 4rem; }
+
+    .feature-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--dim);
+    }
+
+    .feature-row:last-child { border-bottom: none; }
+    .feature-row.reverse .feature-img { order: 2; }
+    .feature-row.reverse .feature-text { order: 1; }
+
+    .feature-img {
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .feature-index {
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-mode-icon {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .feature-title-row .feature-title {
+      margin-bottom: 0;
+    }
+
+    .feature-title {
+      font-family: 'Faustina', serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: var(--text);
+      margin-bottom: 1rem;
+      letter-spacing: 0.01em;
+    }
+
+    .feature-body {
+      font-family: 'Faustina', serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    /* ── DETAIL CARDS ──────────────────────────── */
+    .details-section {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 0 3rem 4rem;
+    }
+
+    .detail-card {
+      background: var(--surface);
+      padding: 0 0 1.75rem;
+    }
+
+    .detail-title {
+      font-family: 'Faustina', serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+      margin: 1.25rem 1.5rem 0.5rem;
+    }
+
+    .detail-body {
+      font-family: 'Faustina', serif;
+      font-size: 0.95rem;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--text);
+      padding: 0 1.5rem;
+    }
+
+    /* ── PLACEHOLDERS ──────────────────────────── */
+    .placeholder {
+      background: var(--dim);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 240px;
+      gap: 1.5rem;
+    }
+
+    .detail-img.placeholder { min-height: 180px; border-radius: 0; }
+
+    .placeholder-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      opacity: 0.6;
+    }
+
+    .placeholder-lamp {
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .placeholder-lamp.horizontal { width: 70%; height: 44px; }
+    .placeholder-lamp.vertical   { width: 44px; height: 180px; }
+
+    .placeholder-gradient {
+      width: 100%;
+      height: 100%;
+    }
+
+    .placeholder-gradient.wind    { background: linear-gradient(90deg, #1ab5e8 0%, #25D1C9 20%, #a8d832 40%, #f5e430 55%, #f07020 75%, #c02030 100%); }
+    .placeholder-gradient.weather { background: linear-gradient(90deg, #888 0%, #aaa 15%, #f5e430 35%, #f5e430 55%, #888 70%, #334499 90%, #441166 100%); }
+    .placeholder-gradient.swell   { background: linear-gradient(90deg, #4ecdc4 0%, #25D1C9 25%, #1ab5e8 50%, #0066bb 75%, #003388 100%); }
+    .placeholder-gradient.wind-live   { background: linear-gradient(180deg, #c02030 0%, #f07020 30%, #f5e430 60%, #25D1C9 85%, #1a1a2e 100%); }
+    .placeholder-gradient.tide-live   { background: linear-gradient(180deg, #25D1C9 0%, #1ab5e8 40%, #0066bb 70%, #1a1a2e 100%); }
+
+    @media (max-width: 640px) {
+      .feature-row, .feature-row.reverse { grid-template-columns: 1fr; }
+      .feature-row.reverse .feature-img { order: 0; }
+      .feature-row.reverse .feature-text { order: 1; }
+      .details-section { grid-template-columns: repeat(2, 1fr); margin: 0 1.5rem 2rem; }
+      .feature-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+    }
+
+    /* ── WAITLIST ──────────────────────────────── */
+    .waitlist-block {
+      padding: 5rem 3rem 6rem;
+      text-align: center;
+    }
+
+    .waitlist-title {
+      font-family: 'Faustina', serif;
+      font-weight: 300;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 0.6rem;
+    }
+
+    .waitlist-sub { font-size: 0.82rem; letter-spacing: 0.04em;  color: var(--muted); margin-bottom: 2.5rem; }
+
+    .form-row {
+      display: flex;
+      max-width: 400px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+
+    .form-row:focus-within { border-color: var(--accent); }
+
+    .form-row input {
+      flex: 1;
+      background: var(--surface);
+      border: none;
+      outline: none;
+      padding: 0.9rem 1.1rem;
+      font-family: 'Faustina', serif;
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      min-width: 0;
+    }
+
+    .form-row input::placeholder { color: var(--muted); }
+
+    .form-row button {
+      background: var(--accent);
+      border: none;
+      padding: 0.9rem 1.35rem;
+      font-family: 'Faustina', serif;
+      font-size: 0.82rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      
+      color: var(--bg);
+      cursor: pointer;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .form-row button:hover { opacity: 0.85; }
+
+    .form-note { font-size: 0.9rem; letter-spacing: 0.02em; color: var(--muted);  margin-top: 1rem; }
+
+    .success-msg {
+      display: none;
+      font-family: 'Faustina', serif;
+      font-size: 1.3rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--accent);
+      margin-top: 1.25rem;
+    }
+
+    /* ── FOOTER ────────────────────────────────── */
+    footer {
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-brand { font-family: 'Faustina', serif; font-weight: 300; font-size: 0.92rem; letter-spacing: 0.04em;  color: var(--muted); }
+    .footer-tagline { font-size: 0.78rem; letter-spacing: 0.04em;  color: var(--border); }
+
+    /* ── ANIMATIONS ────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.8s ease, transform 0.8s ease; }
+
+    /* ── ICON STRIP ────────────────────────────── */
+    .icon-strip {
+      position: relative;
+      z-index: 10;
+      padding: 2.5rem 3rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .icon-strip-inner {
+      display: flex;
+      align-items: flex-start;
+      gap: 3.5rem;
+    }
+
+    .icon-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .icon-group-label {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 1.25rem 0;
+      text-align: center;
+    }
+
+    .icon-group-items {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+
+    .icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .icon-item img {
+      width: 44px;
+      height: 44px;
+      opacity: 0.75;
+      transition: opacity 0.2s;
+    }
+
+    .icon-item:hover img { opacity: 1; }
+
+    .icon-item span {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .icon-strip-divider {
+      width: 1px;
+      background: var(--border);
+      align-self: stretch;
+      margin-top: 1.35rem;
+    }
+
+    @media (max-width: 640px) {
+      .icon-strip { padding: 2rem 1.5rem; }
+      .icon-strip-inner { gap: 2rem; }
+      .icon-group-items { gap: 1.25rem; }
+      .icon-item img { width: 36px; height: 36px; }
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 640px) {
+      nav { padding: 1.25rem 1.5rem; }
+      .lamp-section, .rule, .desc-block, .models-block, .waitlist-block, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .models-grid { grid-template-columns: 1fr; }
+      .model-card { border-right: none; border-bottom: 1px solid var(--border); }
+      .model-card:last-child { border-bottom: none; }
+    }
+
+    .hero-cta {
+      margin-top: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.55s forwards;
+    }
+
+    .hero-cta a {
+      font-family: 'Faustina', serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: rgba(221,213,196,0.9);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(221,213,196,0.35);
+      padding-bottom: 2px;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .hero-cta a:hover {
+      color: #fff;
+      border-color: rgba(221,213,196,0.75);
+    }
+
+    .desc-cta {
+      margin-top: 2.5rem;
+    }
+
+    .desc-form {
+      display: flex;
+      gap: 0;
+      max-width: 440px;
+      margin: 0 auto;
+      background: rgba(221,213,196,0.06);
+      border: 1px solid rgba(221,213,196,0.15);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .desc-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 0.75rem 1.1rem;
+      font-family: 'Faustina', serif;
+      font-size: 0.88rem;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    .desc-input::placeholder {
+      color: var(--muted);
+    }
+
+    .desc-submit {
+      background: transparent;
+      border: none;
+      border-left: 1px solid rgba(221,213,196,0.15);
+      padding: 0.75rem 1.2rem;
+      font-family: 'Faustina', serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: rgba(221,213,196,0.75);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .desc-submit:hover {
+      color: var(--text);
+      background: rgba(221,213,196,0.06);
+    }
+
+    .desc-success {
+      font-size: 0.88rem;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+      margin-top: 0.75rem;
+    }
+
+    /* ── HAMBURGER MENU ───────────────────────── */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 28px;
+      height: 28px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      z-index: 60;
+    }
+
+    .nav-hamburger span {
+      display: block;
+      width: 100%;
+      height: 1.5px;
+      background: rgba(221,213,196,0.65);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease;
+      transform-origin: center;
+    }
+
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    .nav-mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(11,11,11,0.97);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(221,213,196,0.08);
+      z-index: 55;
+      padding: 5rem 2.5rem 2.5rem;
+      flex-direction: column;
+      gap: 0;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+    }
+
+    .nav-mobile-menu.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .nav-mobile-menu a {
+      font-family: 'Faustina', serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: rgba(221,213,196,0.65);
+      text-decoration: none;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(221,213,196,0.07);
+      transition: color 0.2s ease;
+      display: block;
+    }
+
+    .nav-mobile-menu a:last-child { border-bottom: none; }
+    .nav-mobile-menu a:hover { color: var(--text); }
+
+    @media (max-width: 640px) {
+      .nav-menu { display: none; }
+      .nav-hamburger { display: flex; }
+      .nav-mobile-menu { display: flex; }
+      nav { padding: 1.25rem 1.5rem; }
+    }
+
+    /* ── DIRECTION DIAL MOCKUP ────────────────── */
+    .dial-mockup-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 280px;
+      background: #100e0b;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .dial-map-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    .dial-map-fade {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 120% 80% at 50% 30%, rgba(16,14,11,0.2) 0%, rgba(16,14,11,0.7) 100%);
+      pointer-events: none;
+    }
+
+    .dial-sheet {
+      position: relative;
+      width: 100%;
+      background: rgba(18,15,11,0.94);
+      border-top: 1px solid rgba(221,213,196,0.08);
+      border-radius: 20px 20px 0 0;
+      backdrop-filter: blur(20px);
+      padding: 12px 24px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .dial-sheet-handle {
+      width: 28px; height: 3px;
+      background: rgba(221,213,196,0.12);
+      border-radius: 2px;
+    }
+
+    .dial-sheet-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: rgba(221,213,196,0.35);
+      text-transform: uppercase;
+      align-self: flex-start;
+    }
+
+    .dial-circle-wrap {
+      position: relative;
+      width: 140px; height: 140px;
+    }
+
+    .dial-info {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 4px 0;
+      border-top: 1px solid rgba(221,213,196,0.06);
+    }
+
+    .dial-info-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .dial-info-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: rgba(221,213,196,0.85);
+      letter-spacing: 0.02em;
+    }
+
+    .dial-info-label {
+      font-size: 0.48rem;
+      letter-spacing: 0.1em;
+      color: rgba(221,213,196,0.28);
+    }
+
+    .dial-info-on {
+      font-size: 1rem;
+      font-weight: 700;
+      color: rgba(221,185,100,0.85);
+      letter-spacing: 0.02em;
+    }
+
+
+    /* ── LAMP HOVER ZONE ───────────────────────── */
+    .lamp-hover-zone {
+      position: absolute;
+      left:   30.70%;
+      top:    58.24%;
+      width:  38.59%;
+      height: 6.85%;
+      z-index: 5;
+      cursor: crosshair;
+    }
+
+    /* Day tick row — bottom of zone */
+    .lamp-day-svg { display: none; }
+
+    .lamp-crosshair { display: none; }
+
+    /* Tooltip — circle anchored at 64% of hero height (51.5% from zone top) */
+    .lamp-tooltip {
+      position: absolute;
+      top: 34.61%;
+      transform: translate(-4px, -100%);
+      transform-origin: left bottom;
+      pointer-events: none;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 20;
+    }
+
+    .lamp-tooltip.visible { opacity: 1; }
+
+    .lamp-stem { display: none; }
+
+    /* Title */
+    .lamp-tt-mode {
+      font-family: 'Faustina', serif;
+      font-size: 1.18rem;
+      font-weight: 600;
+      color: rgba(100,90,78,0.95);
+      letter-spacing: 0.01em;
+      margin-bottom: 6px;
+    }
+
+    /* Body: line + circle on left, text on right */
+    .lamp-tt-body {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+    }
+
+    /* Line wraps fixed height to match SVG proportions:
+       SVG line = ~100px, circle = 8px dia at bottom */
+    .lamp-tt-line-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 12px;
+      flex-shrink: 0;
+    }
+
+    .lamp-tt-line {
+      width: 3px;
+      height: 90px;
+      background: rgba(100,90,78,0.9);
+      border-radius: 2px;
+    }
+
+    .lamp-tt-circle {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 3px solid rgba(100,90,78,0.9);
+      background: transparent;
+      flex-shrink: 0;
+      margin-top: 0;
+    }
+
+    .lamp-tt-text {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding-top: 1px;
+    }
+
+    .lamp-tt-day {
+      font-family: 'Faustina', serif;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: rgba(100,90,78,0.75);
+      letter-spacing: 0.01em;
+    }
+
+    .lamp-tt-value {
+      font-family: 'Faustina', serif;
+      font-size: 1.01rem;
+      font-weight: 500;
+      color: rgba(100,90,78,0.95);
+      letter-spacing: 0.01em;
+      line-height: 1.2;
+    }
+
+    .lamp-tt-value strong {
+      font-size: 1.29rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+
+    /* ── CURRENT TIME INDICATOR ────────────────── */
+    .cti-wrap {
+      position: absolute;
+      top: 71px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      pointer-events: none;
+      z-index: 15;
+      transform: translateX(-4px);
+      transform-origin: left top;
+      opacity: 0.15;
+      transition: opacity 0.15s ease;
+    }
+
+    .cti-wrap.visible { opacity: 1; }
+
+    .cti-circle {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 3px solid rgba(221,213,196,0.75);
+      background: transparent;
+      flex-shrink: 0;
+    }
+
+    .cti-line {
+      width: 3px;
+      height: 90px;
+      background: rgba(221,213,196,0.75);
+      border-radius: 2px;
+      margin-left: 4.5px;
+    }
+
+    .cti-text {
+      padding-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .cti-title {
+      font-family: 'Faustina', serif;
+      font-size: 1.18rem;
+      font-weight: 600;
+      color: rgba(221,213,196,0.88);
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      margin-bottom: 0;
+    }
+
+    .cti-time {
+      font-family: 'Faustina', serif;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: rgba(221,213,196,0.65);
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+
+    .cti-value {
+      font-family: 'Faustina', serif;
+      font-size: 1.01rem;
+      font-weight: 500;
+      color: rgba(221,213,196,0.88);
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+
+
+
+  </style>
+</head>
+<body>
+
+  <canvas id="isobarCanvas"></canvas>
+
+  <nav>
+    <a href="/" class="nav-logo" aria-label="Almanac Works">
+      <span class="logo-almanac">Almanac</span><span class="logo-works">.works</span>
+    </a>
+    <ul class="nav-menu">
+      <li><a href="#what-it-is">About</a></li>
+      <li><a href="#models">Models</a></li>
+      <li><a href="#waitlist">Waitlist</a></li>
+    </ul>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="nav-mobile-menu" id="navMobileMenu">
+    <a href="#what-it-is" class="nav-mobile-link">About</a>
+    <a href="#models" class="nav-mobile-link">Models</a>
+    <a href="#waitlist" class="nav-mobile-link">Waitlist</a>
+  </div>
+
+  <!-- ── HERO ─────────────────────────────────── -->
+  <div class="hero">
+
+    <!-- Stage: fixed 2560×1440px, JS scales it to cover the viewport (like object-fit:cover).
+         Videos, overlays, and lamp zone all live here — they scale together automatically. -->
+    <div class="hero-stage" id="heroStage">
+      <div class="hero-vids">
+        <video class="hero-vid" id="vid-wind" autoplay muted loop playsinline>
+          <source src="Assets/Isobar_Herovideo_WIND_001.mp4" type="video/mp4">
+        </video>
+        <video class="hero-vid" id="vid-swell" muted loop playsinline>
+          <source src="Assets/Isobar_Herovideo_SWELL_001.mp4" type="video/mp4">
+        </video>
+        <video class="hero-vid" id="vid-weather" muted loop playsinline>
+          <source src="Assets/Isobar_Herovideo_WEATHER_001.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="hero-overlay-top"></div>
+      <div class="hero-overlay-bottom"></div>
+
+      <!-- Lamp hover zone — % coords are relative to stage, always tracking the lamp -->
+      <div class="lamp-hover-zone" id="lampHoverZone">
+        <div class="lamp-crosshair" id="lampCrosshair"></div>
+        <div class="lamp-stem" id="lampStem"></div>
+        <div class="lamp-tooltip" id="lampTooltip">
+          <div class="lamp-tt-mode" id="ttMode">Wind forecast</div>
+          <div class="lamp-tt-body">
+            <div class="lamp-tt-line-wrap">
+              <div class="lamp-tt-line"></div>
+              <div class="lamp-tt-circle"></div>
+            </div>
+            <div class="lamp-tt-text">
+              <div class="lamp-tt-day" id="ttDay">Today · 14:00</div>
+              <div class="lamp-tt-value" id="ttValue"><strong>18</strong> kts SSW</div>
+            </div>
+          </div>
+        </div>
+        <img class="lamp-day-svg" src="Assets/ISOBAR_5day_indicators.svg" alt="Day indicators">
+        <div class="cti-wrap" id="ctiWrap">
+          <div class="cti-circle"></div>
+          <div class="cti-line"></div>
+          <div class="cti-text">
+            <div class="cti-title">Current time</div>
+            <div class="cti-time" id="ctiTime">10:00</div>
+            <div class="cti-value" id="ctiValue"></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /.hero-stage -->
+
+    <!-- Hero content: outside the stage, positioned relative to the viewport -->
+    <div class="hero-content">
+      <p class="hero-eyebrow">Never miss another session.</p>
+      <div class="hero-title" id="isobarTitle">
+        <canvas id="isobarLetterCanvas"></canvas>
+      </div>
+      <div class="hero-sub" role="group" aria-label="Forecast mode">
+        <button class="forecast-btn active" data-video="Assets/Isobar_Herovideo_WEATHER_001.mp4">Weather</button>
+        <button class="forecast-btn" data-video="Assets/Isobar_Herovideo_WIND_001.mp4">Wind</button>
+        <button class="forecast-btn" data-video="Assets/Isobar_Herovideo_SWELL_001.mp4">Swell</button>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div id="what-it-is" class="desc-block reveal">
+    <p class="description">
+      ISOBAR is a weather instrument that reads the forecast and renders it as light. Wind speed, swell height, and weather conditions become a <em>continuous colour gradient</em>, visible from across the room and readable at a glance.
+      <br><br>
+      No app. No screen. No notifications.<br>
+      Just a light that knows what the coming days will hold.
+    </p>
+    <div class="desc-cta">
+
+      <!-- ── ICON STRIP ──────────────────────────── -->
+      <div class="icon-strip reveal">
+        <div class="icon-strip-inner">
+          <div class="icon-group">
+            <p class="icon-group-label">Forecast</p>
+            <div class="icon-group-items">
+              <div class="icon-item">
+                <img src="Assets/ISOBAR_icon_Wind_forecast_icon.svg" alt="Wind forecast">
+                <span>Wind</span>
+              </div>
+              <div class="icon-item">
+                <img src="Assets/ISOBAR_icon_Swell_forecast_icon.svg" alt="Swell forecast">
+                <span>Swell</span>
+              </div>
+              <div class="icon-item">
+                <img src="Assets/ISOBAR_icon_Weather_forecast_icon.svg" alt="Weather forecast">
+                <span>Weather</span>
+              </div>
+            </div>
+          </div>
+          <div class="icon-strip-divider"></div>
+          <div class="icon-group">
+            <p class="icon-group-label">Live data</p>
+            <div class="icon-group-items">
+              <div class="icon-item">
+                <img src="Assets/ISOBAR_icon_Live_wind_icon.svg" alt="Live wind">
+                <span>Wind</span>
+              </div>
+              <div class="icon-item">
+                <img src="Assets/ISOBAR_icon_Live_tide_icon.svg" alt="Live tide">
+                <span>Tide</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form id="descWaitlistForm" name="waitlist-desc">
+        <div class="form-row">
+          <input type="email" name="email" placeholder="your@email.com" required autocomplete="email">
+          <button type="submit">Join waitlist</button>
+        </div>
+      </form>
+      <p class="desc-success" id="descSuccess" style="display:none;">You're on the list. We'll be in touch.</p>
+    </div>
+  </div>
+
+  <!-- ── LIFESTYLE IMAGE ─────────────────────────── -->
+  <div class="lifestyle-wrap reveal">
+    <img src="Assets/Isobar_Feature_stills_Features_Close_C_V01_0000.jpg" alt="ISOBAR top face showing logo badge and mode icons" loading="lazy" style="object-position: center 62%;">
+  </div>
+
+  <!-- ── FORECAST MODES ──────────────────────────── -->
+  <div class="rule reveal">
+    <div class="rule-line"></div>
+    <span class="rule-label">02 · Forecast modes</span>
+    <div class="rule-line"></div>
+  </div>
+
+  <div class="feature-section reveal">
+    <div class="feature-row">
+      <div class="feature-img render-block">
+        <img src="Assets/compressed_jpg/ISOBAR_V03_camI_FORECAST_WIND_V04.jpg" alt="ISOBAR showing wind forecast gradient" loading="lazy">
+      </div>
+      <div class="feature-text">
+        <p class="feature-index">01</p>
+        <div class="feature-title-row"><img src="Assets/ISOBAR_icon_Wind_forecast_icon.svg" class="feature-mode-icon" alt="Wind forecast"><h3 class="feature-title">Wind forecast</h3></div>
+        <p class="feature-body">The full week ahead, mapped to colour. Calm days glow a cool blue-green. As wind builds through yellow and amber, stormy days burn deep red. A single glance from the couch tells you when the window opens.</p>
+      </div>
+    </div>
+
+    <div class="feature-row reverse">
+      <div class="feature-img render-block">
+        <img src="Assets/compressed_jpg/ISOBAR_V03_camI_FORECAST_WEATHER_V04.jpg" alt="ISOBAR showing weather forecast gradient" loading="lazy">
+      </div>
+      <div class="feature-text">
+        <p class="feature-index">02</p>
+        <div class="feature-title-row"><img src="Assets/ISOBAR_icon_Weather_forecast_icon.svg" class="feature-mode-icon" alt="Weather forecast"><h3 class="feature-title">Weather forecast</h3></div>
+        <p class="feature-body">Overcast grey bleeding into golden yellow for sun, a deep blue for heavy rain and purple for storms. Seven days of sky conditions rendered as a continuous gradient across the instrument.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-img render-block">
+        <img src="Assets/compressed_jpg/ISOBAR_V03_camI_FORECAST_SWELL_V04.jpg" alt="ISOBAR showing swell forecast gradient" loading="lazy">
+      </div>
+      <div class="feature-text">
+        <p class="feature-index">03</p>
+        <div class="feature-title-row"><img src="Assets/ISOBAR_icon_Swell_forecast_icon.svg" class="feature-mode-icon" alt="Swell forecast"><h3 class="feature-title">Swell forecast</h3></div>
+        <p class="feature-body">Swell height and period translated into light. Flat days sit in pale green; as groundswell builds the gradient shifts through teal and deep cyan. For surfers and kiteboarders who need more than just wind.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── LIVE DATA MODES ──────────────────────────── -->
+  <div class="rule reveal">
+    <div class="rule-line"></div>
+    <span class="rule-label">03 · Live data</span>
+    <div class="rule-line"></div>
+  </div>
+
+  <div class="feature-section reveal">
+    <div class="live-pair">
+
+      <div class="live-card">
+        <div class="live-card-img">
+          <img src="Assets/compressed_jpg/ISOBAR_V03_camI_LIVE_WIND_V04.jpg" alt="ISOBAR showing live wind gradient" loading="lazy">
+        </div>
+        <p class="feature-index">01</p>
+        <div class="feature-title-row"><img src="Assets/ISOBAR_icon_Live_wind_icon.svg" class="feature-mode-icon" alt="Live wind speed"><h3 class="feature-title">Live wind speed</h3></div>
+        <p class="feature-body">Switch to live mode and ISOBAR shows current wind speed at your spot in real time. Hang it vertically and the gradient fills from the bottom up as wind builds. A simple, immediate reading of right now.</p>
+      </div>
+
+      <div class="live-card">
+        <div class="live-card-img">
+          <img src="Assets/compressed_jpg/ISOBAR_V03_camI_LIVE_TIDE_V04.jpg" alt="ISOBAR showing live tide gradient" loading="lazy">
+        </div>
+        <p class="feature-index">02</p>
+        <div class="feature-title-row"><img src="Assets/ISOBAR_icon_Live_tide_icon.svg" class="feature-mode-icon" alt="Live tide"><h3 class="feature-title">Live tide</h3></div>
+        <p class="feature-body">The tidal cycle rendered as a shifting gradient. High tide glows full and bright; as the tide drops the light recedes. Essential context for any session that depends on water depth or tidal flow.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── PRODUCT DETAILS ──────────────────────────── -->
+  <div class="rule reveal">
+    <div class="rule-line"></div>
+    <span class="rule-label">04 · Details</span>
+    <div class="rule-line"></div>
+  </div>
+
+  <div class="details-section reveal">
+    <div class="detail-card">
+      <div class="detail-img detail-img-real">
+        <img src="Assets/Isobar_Feature_stills_Features_Close_A_V01_0000.jpg" alt="Day marker notches on LED channel" loading="lazy">
+      </div>
+      <h4 class="detail-title">Day markers</h4>
+      <p class="detail-body">Engraved tick marks divide the gradient into days, with noon and midnight clearly marked. A single flashing LED indicates the current hour, so you can pinpoint exactly where you are in the forecast at a glance.</p>
+    </div>
+    <div class="detail-card">
+      <div class="detail-img detail-img-real">
+        <img src="Assets/Isobar_Feature_stills_Features_Close_D_V01_0000.jpg" alt="Engraved touch buttons on top surface" loading="lazy">
+      </div>
+      <h4 class="detail-title">Mode switch</h4>
+      <p class="detail-body">The engraved ISOBAR logo badge on the top surface is a capacitive touch button. One press cycles through forecast modes and live data views. An ambient light sensor on the same face automatically adjusts brightness to the room, bright in daylight and dim at night.</p>
+    </div>
+    <div class="detail-card">
+      <div class="detail-img detail-img-real">
+        <img src="Assets/Isobar_Feature_stills_Features_Close_H_V01_0000.jpg" alt="ISOBAR on wall mount bracket with power connection" loading="lazy">
+      </div>
+      <h4 class="detail-title">Installation</h4>
+      <p class="detail-body">Slotted keyhole mounts on the back panel sit flush against the wall, with channels that guide the power cable out of sight. Hang it horizontally for a 7-day forecast, or rotate it vertical to show live wind or tide. The display adapts automatically.</p>
+    </div>
+    <div class="detail-card">
+      <div class="detail-img detail-img-real">
+        <img src="Assets/Isobar_Feature_stills_Features_Close_E_V01_0000.jpg" alt="ISOBAR brass badge on walnut grain" loading="lazy">
+      </div>
+      <h4 class="detail-title">Solid timber</h4>
+      <p class="detail-body">Each enclosure is hand-finished from ecologically sourced solid timber. The grain, tone and character vary from lamp to lamp. No two are identical.</p>
+    </div>
+  </div>
+  <!-- ── MODELS IMAGE ─────────────────────────── -->
+  <div class="models-full-img reveal">
+    <img src="Assets/compressed_jpg/ISOBAR_V05_001_0000.jpg" alt="ISOBAR 3, 5 and 7 side by side" loading="lazy">
+  </div>
+
+  <div id="models" class="rule reveal">
+    <div class="rule-line"></div>
+    <span class="rule-label">05 · Models</span>
+    <div class="rule-line"></div>
+  </div>
+
+  <div class="models-block reveal">
+    <div class="models-block-inner">
+    <div class="models-grid">
+      <div class="model-card">
+        <p class="model-type">Desk</p>
+        <p class="model-name">ISOBAR 3</p>
+        <div class="model-bar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3553.31 280" class="model-icon">
+<defs>
+    <style>
+      .st0 {
+        fill: #ddd5c4;
+      }
+
+      .st1 {
+        fill: url(#lg-sz-3);
+      }
+    </style>
+    <linearGradient id="lg-sz-3" x1="81" y1="140.13" x2="3515.68" y2="140.13" gradientUnits="userSpaceOnUse">
+      <stop offset=".03" stop-color="#08b3e6"/>
+      <stop offset=".09" stop-color="#18dfb1"/>
+      <stop offset=".14" stop-color="#55eb8c"/>
+      <stop offset=".2" stop-color="#f9de61"/>
+      <stop offset=".23" stop-color="#ffdd60"/>
+      <stop offset=".3" stop-color="#fade61"/>
+      <stop offset=".36" stop-color="#69eb83"/>
+      <stop offset=".41" stop-color="#0fc7ce"/>
+      <stop offset=".45" stop-color="#05abee"/>
+      <stop offset=".51" stop-color="#40eb94"/>
+      <stop offset=".56" stop-color="#fdd25e"/>
+      <stop offset=".6" stop-color="#e56649"/>
+      <stop offset=".66" stop-color="#af2546"/>
+      <stop offset=".72" stop-color="#cd243e"/>
+      <stop offset=".79" stop-color="#e8764c"/>
+      <stop offset=".84" stop-color="#fed65f"/>
+      <stop offset=".91" stop-color="#7ceb7c"/>
+      <stop offset=".99" stop-color="#17ddb4"/>
+    </linearGradient>
+  </defs>
+  <path class="st0" d="M582.87,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st0" d="M1072.99,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st1" d="M1528.15,204.33H121.67c-27.58,0-50.02-22.44-50.02-50.02v-28.35c0-27.58,22.44-50.02,50.02-50.02h1406.48c27.58,0,50.02,22.44,50.02,50.02v28.35c0,27.58-22.44,50.02-50.02,50.02h0ZM121.67,90.94c-19.31,0-35.02,15.71-35.02,35.02v28.35c0,19.31,15.71,35.02,35.02,35.02h1406.48c19.31,0,35.02-15.71,35.02-35.02v-28.35c0-19.31-15.71-35.02-35.02-35.02H121.67Z"/>
+  <path class="st0" d="M1542.32,21.75c49.65,0,90.04,40.39,90.04,90.04v56.69c0,49.65-40.39,90.04-90.04,90.04H107.5c-49.65,0-90.04-40.39-90.04-90.04v-56.69c0-49.65,40.39-90.04,90.04-90.04h1434.83M1542.32,16.75H107.5C55.09,16.75,12.46,59.38,12.46,111.79v56.69c0,52.41,42.63,95.04,95.04,95.04h1434.83c52.4,0,95.04-42.63,95.04-95.04v-56.69c0-52.4-42.63-95.04-95.04-95.04h-.01Z"/>
+</svg>
+        </div>
+        <p class="model-days">3-day forecast</p>
+        <p class="model-price">From €239</p>
+      </div>
+      <div class="model-card">
+        <p class="model-type">Wall · Medium</p>
+        <p class="model-name">ISOBAR 5</p>
+        <div class="model-bar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3588.22 271.93" class="model-icon">
+<defs>
+    <style>
+      .st0 {
+        fill: #ddd5c4;
+      }
+
+      .st1 {
+        fill: url(#lg-sz-5);
+      }
+    </style>
+    <linearGradient id="lg-sz-5" x1="85.53" y1="140.13" x2="3491.6" y2="140.13" gradientUnits="userSpaceOnUse">
+      <stop offset=".03" stop-color="#08b3e6"/>
+      <stop offset=".09" stop-color="#18dfb1"/>
+      <stop offset=".14" stop-color="#55eb8c"/>
+      <stop offset=".2" stop-color="#f9de61"/>
+      <stop offset=".23" stop-color="#ffdd60"/>
+      <stop offset=".3" stop-color="#fade61"/>
+      <stop offset=".36" stop-color="#69eb83"/>
+      <stop offset=".41" stop-color="#0fc7ce"/>
+      <stop offset=".45" stop-color="#05abee"/>
+      <stop offset=".51" stop-color="#40eb94"/>
+      <stop offset=".56" stop-color="#fdd25e"/>
+      <stop offset=".6" stop-color="#e56649"/>
+      <stop offset=".66" stop-color="#af2546"/>
+      <stop offset=".72" stop-color="#cd243e"/>
+      <stop offset=".79" stop-color="#e8764c"/>
+      <stop offset=".84" stop-color="#fed65f"/>
+      <stop offset=".91" stop-color="#7ceb7c"/>
+      <stop offset=".99" stop-color="#17ddb4"/>
+    </linearGradient>
+  </defs>
+  <path class="st0" d="M582.87,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st0" d="M1072.99,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st0" d="M1563.12,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st0" d="M2053.24,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st1" d="M2504.55,204.33H121.67c-27.58,0-50.02-22.44-50.02-50.02v-28.35c0-27.58,22.44-50.02,50.02-50.02h2382.88c27.58,0,50.02,22.44,50.02,50.02v28.35c0,27.58-22.44,50.02-50.02,50.02h0ZM121.67,90.94c-19.31,0-35.02,15.71-35.02,35.02v28.35c0,19.31,15.71,35.02,35.02,35.02h2382.88c19.31,0,35.02-15.71,35.02-35.02v-28.35c0-19.31-15.71-35.02-35.02-35.02H121.67Z"/>
+  <path class="st0" d="M2518.72,21.75c49.65,0,90.04,40.39,90.04,90.04v56.69c0,49.65-40.39,90.04-90.04,90.04H107.5c-49.65,0-90.04-40.39-90.04-90.04v-56.69c0-49.65,40.39-90.04,90.04-90.04h2411.23M2518.72,16.75H107.5C55.09,16.75,12.46,59.38,12.46,111.79v56.69c0,52.41,42.63,95.04,95.04,95.04h2411.23c52.4,0,95.04-42.63,95.04-95.04v-56.69c0-52.4-42.63-95.04-95.04-95.04h-.01Z"/>
+</svg>
+        </div>
+        <p class="model-days">5-day forecast</p>
+        <p class="model-price">From €329</p>
+      </div>
+      <div class="model-card">
+        <p class="model-type">Wall · Large</p>
+        <p class="model-name">ISOBAR 7</p>
+        <div class="model-bar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3588.22 280.27" class="model-icon">
+<defs>
+    <style>
+      .st0 {
+        fill: #ddd5c4;
+      }
+
+      .st1 {
+        fill: url(#lg-sz-7);
+      }
+    </style>
+    <linearGradient id="lg-sz-7" x1="123.84" y1="141.17" x2="3473.86" y2="141.17" gradientTransform="translate(0 281.31) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset=".03" stop-color="#08b3e6"/>
+      <stop offset=".09" stop-color="#18dfb1"/>
+      <stop offset=".14" stop-color="#55eb8c"/>
+      <stop offset=".2" stop-color="#f9de61"/>
+      <stop offset=".23" stop-color="#ffdd60"/>
+      <stop offset=".3" stop-color="#fade61"/>
+      <stop offset=".36" stop-color="#69eb83"/>
+      <stop offset=".41" stop-color="#0fc7ce"/>
+      <stop offset=".45" stop-color="#05abee"/>
+      <stop offset=".51" stop-color="#40eb94"/>
+      <stop offset=".56" stop-color="#fdd25e"/>
+      <stop offset=".6" stop-color="#e56649"/>
+      <stop offset=".66" stop-color="#af2546"/>
+      <stop offset=".72" stop-color="#cd243e"/>
+      <stop offset=".79" stop-color="#e8764c"/>
+      <stop offset=".84" stop-color="#fed65f"/>
+      <stop offset=".91" stop-color="#7ceb7c"/>
+      <stop offset=".99" stop-color="#17ddb4"/>
+    </linearGradient>
+  </defs>
+  <path class="st0" d="M582.87,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st0" d="M1072.99,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st0" d="M1563.12,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st0" d="M2053.24,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st0" d="M2543.36,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st0" d="M3033.49,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st1" d="M3466.55,204.33H121.67c-27.58,0-50.02-22.44-50.02-50.02v-28.35c0-27.58,22.44-50.02,50.02-50.02h3344.88c27.58,0,50.02,22.44,50.02,50.02v28.35c0,27.58-22.44,50.02-50.02,50.02h0ZM121.67,90.94c-19.31,0-35.02,15.71-35.02,35.02v28.35c0,19.31,15.71,35.02,35.02,35.02h3344.88c19.31,0,35.02-15.71,35.02-35.02v-28.35c0-19.31-15.71-35.02-35.02-35.02H121.67Z"/>
+  <path class="st0" d="M3480.72,21.75c49.65,0,90.04,40.39,90.04,90.04v56.69c0,49.65-40.39,90.04-90.04,90.04H107.5c-49.65,0-90.04-40.39-90.04-90.04v-56.69c0-49.65,40.39-90.04,90.04-90.04h3373.23M3480.72,16.75H107.5C55.09,16.75,12.46,59.38,12.46,111.79v56.69c0,52.41,42.63,95.04,95.04,95.04h3373.23c52.4,0,95.04-42.63,95.04-95.04v-56.69c0-52.4-42.63-95.04-95.04-95.04h-.01Z"/>
+</svg>
+        </div>
+        <p class="model-days">7-day forecast</p>
+        <p class="model-price">From €449</p>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div id="waitlist" class="rule reveal">
+    <div class="rule-line"></div>
+    <span class="rule-label">07 · Waitlist</span>
+    <div class="rule-line"></div>
+  </div>
+
+  <div class="waitlist-block reveal">
+    <h2 class="waitlist-title">Be first to know.</h2>
+    <p class="waitlist-sub">Early 2027 &nbsp;·&nbsp; Limited run</p>
+    <!--
+      FORM OPTIONS:
+      A) Netlify: Add data-netlify="true" to form, remove JS submit handler
+      B) Mailchimp / ConvertKit / MailerLite: replace action with embed URL
+    -->
+    <form id="waitlistForm" name="waitlist">
+      <div class="form-row">
+        <input type="email" name="email" placeholder="your@email.com" required autocomplete="email">
+        <button type="submit">Join waitlist</button>
+      </div>
+    </form>
+    <p class="form-note">No spam &nbsp;·&nbsp; almanac.works</p>
+    <p class="success-msg" id="successMsg">You're on the list. We'll be in touch before launch.</p>
+  </div>
+
+  <footer>
+    <span class="footer-brand">Almanac.works</span>
+    <span class="footer-tagline">Nature as interface</span>
+  </footer>
+
+  <script>
+  // ═══════════════════════════════════════════════════════════════════
+  // ISOBAR BACKGROUND
+  // ═══════════════════════════════════════════════════════════════════
+  (function () {
+    const canvas = document.getElementById('isobarCanvas');
+    const ctx = canvas.getContext('2d');
+    const BG = '#0b0b0b';
+    function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
+
+    class SimplexNoise {
+      constructor(){
+        this.perm=new Array(512); this.gradP=new Array(512);
+        const p=new Uint8Array(256);
+        for(let i=0;i<256;i++)p[i]=i;
+        for(let i=255;i>0;i--){const n=Math.floor((i+1)*Math.random());const q=p[i];p[i]=p[n];p[n]=q;}
+        for(let i=0;i<512;i++)this.perm[i]=p[i&255];
+        const g3=[[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],[0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]];
+        for(let i=0;i<512;i++)this.gradP[i]=g3[this.perm[i]%12];
+      }
+      dot(g,x,y,z){return g[0]*x+g[1]*y+g[2]*z;}
+      lerp(t,a,b){return a+t*(b-a);}
+      noise(x,y,z){
+        const X=Math.floor(x)&255,Y=Math.floor(y)&255,Z=Math.floor(z)&255;
+        x-=Math.floor(x);y-=Math.floor(y);z-=Math.floor(z);
+        const u=x*x*x*(x*(x*6-15)+10),v=y*y*y*(y*(y*6-15)+10),w=z*z*z*(z*(z*6-15)+10);
+        const A=this.perm[X]+Y,AA=this.perm[A]+Z,AB=this.perm[A+1]+Z,B=this.perm[X+1]+Y,BA=this.perm[B]+Z,BB=this.perm[B+1]+Z;
+        return this.lerp(w,this.lerp(v,this.lerp(u,this.dot(this.gradP[AA],x,y,z),this.dot(this.gradP[BA],x-1,y,z)),this.lerp(u,this.dot(this.gradP[AB],x,y-1,z),this.dot(this.gradP[BB],x-1,y-1,z))),this.lerp(v,this.lerp(u,this.dot(this.gradP[AA+1],x,y,z-1),this.dot(this.gradP[BA+1],x-1,y,z-1)),this.lerp(u,this.dot(this.gradP[AB+1],x,y-1,z-1),this.dot(this.gradP[BB+1],x-1,y-1,z-1))));
+      }
+    }
+
+    const noise=new SimplexNoise();
+    let time=0;
+    const noiseScale=0.002,animSpeed=0.00034,isobarLevels=60,smoothness=6,lineWidth=0.7,minVal=-2.0,maxVal=0.5,colorCurve=1.8,gradientSpeed=5.0,randomScale=0.0035;
+    const gC=[{r:0x25,g:0xD1,b:0xC9},{r:0xFF,g:0xFF,b:0x5E},{r:0xEC,g:0x29,b:0x5A}];
+
+    function colorAt(xPos,yPos,cyc){
+      if(!isFinite(xPos)||canvas.width===0)return'rgb(255,255,255)';
+      const raw=(Math.pow(Math.max(0,Math.min(1,xPos/canvas.width)),colorCurve)+cyc)%2;
+      const gp=raw<=1?raw:2-raw,sp=gp*(gC.length-1),ci=Math.floor(sp),ct=sp-ci;
+      const i1=Math.max(0,Math.min(ci,gC.length-1)),i2=Math.max(0,Math.min(ci+1,gC.length-1));
+      const nv=noise.noise(xPos*randomScale,yPos*randomScale,time*0.05);
+      if(isFinite(nv)){
+        const nr=((raw+nv*1.5)%2+2)%2,np=nr<=1?nr:2-nr,ns=np*(gC.length-1),ni=Math.floor(ns),nt=ns-ni;
+        const ni1=Math.max(0,Math.min(ni,gC.length-1)),ni2=Math.max(0,Math.min(ni+1,gC.length-1));
+        return`rgb(${Math.round(gC[ni1].r+(gC[ni2].r-gC[ni1].r)*nt)},${Math.round(gC[ni1].g+(gC[ni2].g-gC[ni1].g)*nt)},${Math.round(gC[ni1].b+(gC[ni2].b-gC[ni1].b)*nt)})`;
+      }
+      return`rgb(${Math.round(gC[i1].r+(gC[i2].r-gC[i1].r)*ct)},${Math.round(gC[i1].g+(gC[i2].g-gC[i1].g)*ct)},${Math.round(gC[i1].b+(gC[i2].b-gC[i1].b)*ct)})`;
+    }
+
+    function draw(){
+      ctx.fillStyle=BG;ctx.fillRect(0,0,canvas.width,canvas.height);
+      const W=Math.ceil(canvas.width/smoothness),H=Math.ceil(canvas.height/smoothness),vals=[];
+      for(let y=0;y<H;y++){vals[y]=[];for(let x=0;x<W;x++)vals[y][x]=noise.noise(x*smoothness*noiseScale,y*smoothness*noiseScale,time);}
+      const step=(maxVal-minVal)/(isobarLevels-1),cyc=time*gradientSpeed;
+      ctx.lineWidth=lineWidth;
+      for(let l=0;l<isobarLevels;l++){
+        const lv=minVal+step*l;
+        for(let y=0;y<H-1;y++)for(let x=0;x<W-1;x++){
+          const v00=vals[y][x],v10=vals[y][x+1],v01=vals[y+1][x],v11=vals[y+1][x+1],s=[];
+          if((v00<lv)!==(v10<lv))s.push({x:(x+(lv-v00)/(v10-v00))*smoothness,y:y*smoothness});
+          if((v10<lv)!==(v11<lv))s.push({x:(x+1)*smoothness,y:(y+(lv-v10)/(v11-v10))*smoothness});
+          if((v01<lv)!==(v11<lv))s.push({x:(x+(lv-v01)/(v11-v01))*smoothness,y:(y+1)*smoothness});
+          if((v00<lv)!==(v01<lv))s.push({x:x*smoothness,y:(y+(lv-v00)/(v01-v00))*smoothness});
+          if(s.length===2){ctx.strokeStyle=colorAt((s[0].x+s[1].x)/2,(s[0].y+s[1].y)/2,cyc);ctx.beginPath();ctx.moveTo(s[0].x,s[0].y);ctx.lineTo(s[1].x,s[1].y);ctx.stroke();}
+        }
+      }
+      const cx=canvas.width/2,cy=canvas.height/2,mr=Math.sqrt(cx*cx+cy*cy);
+      const vg=ctx.createRadialGradient(cx,cy,mr*0.45,cx,cy,mr);
+      vg.addColorStop(0,BG+'00');vg.addColorStop(1,BG+'CC');
+      ctx.fillStyle=vg;ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
+
+    function animate(){time+=animSpeed;draw();requestAnimationFrame(animate);}
+    animate();
+  })();
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ISOBAR LETTER CANVAS — all offscreen canvases created ONCE
+  // ═══════════════════════════════════════════════════════════════════
+  (function() {
+    const lc = document.getElementById('isobarLetterCanvas');
+    const ctx = lc.getContext('2d');
+
+    // Pre-create all offscreen canvases once
+    const off  = document.createElement('canvas'); // isobar lines
+    const mask = document.createElement('canvas'); // letter shapes
+    const bc   = document.createElement('canvas'); // composite working canvas
+    const oc = off.getContext('2d');
+    const mc = mask.getContext('2d');
+    const bcc = bc.getContext('2d');
+
+    function resize() {
+      const h = Math.round(parseFloat(getComputedStyle(lc).height) || 80);
+      const w = Math.round(h * 7);
+      [lc, off, mask, bc].forEach(c => { c.width = w; c.height = h; });
+      lc.style.width = w + 'px';
+      lc.style.height = h + 'px';
+      drawMask();
+    }
+
+    function drawMask() {
+      const W = mask.width, H = mask.height;
+      mc.clearRect(0,0,W,H);
+      mc.save();
+      // SVG viewBox is 626.36 × 89.49 — aspect ratio ≈ 7:1, matching the canvas exactly.
+      // Scale uniformly so the logo fills the canvas height.
+      const scale = H / 89.49;
+      const svgW = 626.36 * scale;
+      const offsetX = (W - svgW) / 2; // centre horizontally if any gap
+      mc.translate(offsetX, 0);
+      mc.scale(scale, scale);
+      mc.fillStyle = '#fff';
+
+      // I — rounded rect (converted to path manually for broad browser support)
+      mc.beginPath();
+      const rx = 2.64, x0 = 0, y0 = 3.36, rw = 16.79, rh = 85.21;
+      mc.moveTo(x0 + rx, y0);
+      mc.lineTo(x0 + rw - rx, y0);
+      mc.quadraticCurveTo(x0 + rw, y0, x0 + rw, y0 + rx);
+      mc.lineTo(x0 + rw, y0 + rh - rx);
+      mc.quadraticCurveTo(x0 + rw, y0 + rh, x0 + rw - rx, y0 + rh);
+      mc.lineTo(x0 + rx, y0 + rh);
+      mc.quadraticCurveTo(x0, y0 + rh, x0, y0 + rh - rx);
+      mc.lineTo(x0, y0 + rx);
+      mc.quadraticCurveTo(x0, y0, x0 + rx, y0);
+      mc.closePath();
+      mc.fill();
+
+      // S
+      mc.fill(new Path2D('M96.9,20.03c2.08-1.46,4.94-2.2,8.57-2.2,2.93,0,6.08.58,9.44,1.74,2.56.88,5.09,1.95,7.58,3.19,1.3.65,2.87.1,3.51-1.2l4.11-8.3c.61-1.24.17-2.74-1.02-3.45-2.86-1.69-6.01-3.19-9.43-4.49-4.28-1.62-9.86-2.43-16.73-2.43-5.25.23-9.88,1.41-13.89,3.53-4.01,2.12-7.12,5-9.32,8.62-2.2,3.63-3.3,7.91-3.3,12.85,0,4.09.75,7.54,2.26,10.36,1.5,2.82,3.47,5.17,5.9,7.06,2.43,1.89,5.04,3.49,7.81,4.8,2.78,1.31,5.48,2.47,8.1,3.47,2.24.85,4.3,1.85,6.19,3.01,1.89,1.16,3.4,2.43,4.52,3.82,1.12,1.39,1.68,2.93,1.68,4.63,0,2.47-.68,4.4-2.03,5.79-1.35,1.39-3.05,2.37-5.09,2.95-2.05.58-4.07.87-6.08.87s-4.21-.31-6.6-.93c-2.39-.62-4.77-1.49-7.12-2.6-1.48-.7-2.89-1.47-4.22-2.31-1.29-.81-2.98-.41-3.72.91l-4.79,8.45c-.7,1.23-.3,2.8.9,3.55,2.35,1.47,4.77,2.72,7.26,3.75,3.24,1.35,6.54,2.36,9.9,3.01,3.36.65,6.66.98,9.9.98,6.33,0,11.65-1.14,15.98-3.42,5.9-3.11,9.86-7.55,11.88-13.32,1.14-3.26,1.46-6.74,1.24-10.19-.19-3.02-.75-5.65-1.66-7.87-1.16-2.82-2.7-5.17-4.63-7.06-1.93-1.89-4.11-3.47-6.54-4.75s-4.88-2.37-7.35-3.3c-2.7-1-5.31-2.12-7.81-3.36-2.51-1.23-4.56-2.64-6.14-4.23-1.58-1.58-2.37-3.38-2.37-5.38,0-2.93,1.04-5.13,3.13-6.6Z'));
+
+      // O
+      mc.fill(new Path2D('M256.27,15.46c-4.05-4.05-8.7-7.24-13.95-9.55-5.25-2.32-10.84-3.47-16.79-3.47s-11.66,1.16-16.9,3.47c-5.25,2.32-9.86,5.5-13.83,9.55-3.98,4.05-7.08,8.7-9.32,13.95-2.24,5.25-3.36,10.81-3.36,16.67s1.12,11.66,3.36,16.9c2.24,5.25,5.34,9.86,9.32,13.83,3.97,3.98,8.59,7.08,13.83,9.32,5.25,2.24,10.88,3.36,16.9,3.36s11.54-1.12,16.79-3.36c5.25-2.24,9.9-5.34,13.95-9.32,4.05-3.97,7.22-8.59,9.49-13.83,2.28-5.25,3.42-10.88,3.42-16.9s-1.14-11.42-3.42-16.67c-2.28-5.25-5.44-9.9-9.49-13.95ZM249.84,56.67c-1.31,3.28-3.13,6.18-5.44,8.68-2.32,2.51-5.04,4.46-8.16,5.85s-6.5,2.08-10.13,2.08-7.28-.69-10.48-2.08c-3.2-1.39-6.02-3.34-8.45-5.85-2.43-2.51-4.32-5.4-5.67-8.68-1.35-3.28-2.03-6.81-2.03-10.59s.66-7.45,1.97-10.77c1.31-3.32,3.16-6.23,5.56-8.74,2.39-2.51,5.17-4.46,8.34-5.85,3.16-1.39,6.6-2.08,10.3-2.08s7.14.69,10.3,2.08c3.16,1.39,5.92,3.34,8.28,5.85,2.35,2.51,4.21,5.42,5.56,8.74,1.35,3.32,2.03,6.91,2.03,10.77s-.66,7.31-1.97,10.59Z'));
+
+      // B
+      mc.fill(new Path2D('M370.39,43.67c2.49-1.54,4.59-3.45,6.29-5.75,2.58-3.51,3.88-7.89,3.88-13.14,0-7.1-2.62-12.45-7.87-16.04-5.25-3.59-12.31-5.38-21.19-5.38h-22.37c-1.46,0-2.64,1.18-2.64,2.64v79.94c0,1.46,1.18,2.64,2.64,2.64h25.73c3.78,0,7.45-.44,11-1.33,3.55-.89,6.73-2.32,9.55-4.28,2.82-1.97,5.05-4.55,6.71-7.76,1.66-3.2,2.49-7.12,2.49-11.75,0-5.02-1.58-9.32-4.75-12.91-2.46-2.79-5.63-5.08-9.47-6.87ZM343.27,22.2c0-1.46,1.18-2.64,2.64-2.64h6.39c3.32,0,5.96.73,7.93,2.2,1.97,1.47,2.95,3.67,2.95,6.6,0,2.55-.79,4.82-2.37,6.83-1.58,2.01-4.03,3.01-7.35,3.01h-7.55c-1.46,0-2.64-1.18-2.64-2.64v-13.37ZM365.5,68.83c-1.16,1.43-2.74,2.47-4.75,3.13-2.01.66-4.25.98-6.71.98h-8.13c-1.46,0-2.64-1.18-2.64-2.64v-13.25c0-1.46,1.18-2.64,2.64-2.64h6.97c2.39,0,4.69.25,6.89.75,2.2.5,3.99,1.39,5.38,2.66s2.08,3.15,2.08,5.62c0,2.16-.58,3.96-1.74,5.38Z'));
+
+      // A
+      mc.fill(new Path2D('M471.66,0h-.93l-36.84,84.88c-.76,1.74.52,3.69,2.42,3.69h10.78c1.06,0,2.03-.64,2.43-1.62l6.39-15.35c.36.19.78.3,1.23.3h26.93l5.91,15c.4,1.01,1.37,1.67,2.45,1.67h13.64c1.9,0,3.17-1.95,2.42-3.69L471.66,0ZM461.68,57.77l8.65-20.77,8.19,20.77h-16.84Z'));
+
+      // R
+      mc.fill(new Path2D('M625.94,84.51l-17.24-26.91c2.72-1.54,5-3.41,6.82-5.62,2.35-2.85,4.05-6.02,5.09-9.49,1.04-3.47,1.56-6.95,1.56-10.42,0-4.4-.73-8.35-2.2-11.87-1.47-3.51-3.61-6.52-6.43-9.03-2.82-2.51-6.31-4.44-10.48-5.79-4.17-1.35-8.91-2.03-14.24-2.03h-23.18c-1.46,0-2.64,1.18-2.64,2.64v79.94c0,1.46,1.18,2.64,2.64,2.64h11.51c1.46,0,2.64-1.18,2.64-2.64v-21.82c0-1.46,1.18-2.64,2.64-2.64h8.54l17.21,25.91c.49.74,1.31,1.18,2.2,1.18h13.33c2.08,0,3.35-2.3,2.22-4.06ZM579.8,42.63v-20.43c0-1.46,1.18-2.64,2.64-2.64h9.4c2.93,0,5.27.5,7,1.5,1.74,1,3.03,2.24,3.88,3.71.85,1.47,1.41,2.91,1.68,4.34.27,1.43.41,2.6.41,3.53,0,1.24-.21,2.57-.64,3.99-.43,1.43-1.12,2.8-2.08,4.11-.97,1.31-2.3,2.39-3.99,3.24-1.7.85-3.82,1.27-6.37,1.27h-9.29c-1.46,0-2.64-1.18-2.64-2.64Z'));
+
+      mc.restore();
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Simplex noise
+    class SN {
+      constructor() {
+        this.p = new Array(512); this.g = new Array(512);
+        const a = new Uint8Array(256);
+        for (let i=0;i<256;i++) a[i]=i;
+        for (let i=255;i>0;i--){const n=Math.floor((i+1)*Math.random()),q=a[i];a[i]=a[n];a[n]=q;}
+        for (let i=0;i<512;i++) this.p[i]=a[i&255];
+        const g3=[[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],[0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]];
+        for (let i=0;i<512;i++) this.g[i]=g3[this.p[i]%12];
+      }
+      dot(g,x,y,z){return g[0]*x+g[1]*y+g[2]*z;}
+      lerp(t,a,b){return a+t*(b-a);}
+      noise(x,y,z){
+        const X=Math.floor(x)&255,Y=Math.floor(y)&255,Z=Math.floor(z)&255;
+        x-=Math.floor(x);y-=Math.floor(y);z-=Math.floor(z);
+        const u=x*x*x*(x*(x*6-15)+10),v=y*y*y*(y*(y*6-15)+10),w=z*z*z*(z*(z*6-15)+10);
+        const A=this.p[X]+Y,AA=this.p[A]+Z,AB=this.p[A+1]+Z,B=this.p[X+1]+Y,BA=this.p[B]+Z,BB=this.p[B+1]+Z;
+        return this.lerp(w,this.lerp(v,this.lerp(u,this.dot(this.g[AA],x,y,z),this.dot(this.g[BA],x-1,y,z)),this.lerp(u,this.dot(this.g[AB],x,y-1,z),this.dot(this.g[BB],x-1,y-1,z))),this.lerp(v,this.lerp(u,this.dot(this.g[AA+1],x,y,z-1),this.dot(this.g[BA+1],x-1,y,z-1)),this.lerp(u,this.dot(this.g[AB+1],x,y-1,z-1),this.dot(this.g[BB+1],x-1,y-1,z-1))));
+      }
+    }
+    const noise = new SN();
+
+    const NSX=0.0051, NSY=0.008, SPEED=0.00102, VSPEED=0.0008, LEVELS=60, RES=3, MIN=-2.0, MAX=0.5;
+
+    let t = 0;
+
+    function drawFrame() {
+      t += SPEED;
+      const W = lc.width, H = lc.height;
+      const lineW = Math.max(1.5, H * 0.025); // thick lines — ~7% of canvas height
+
+      // 1. Draw thick isobar lines into off canvas (solid white)
+      oc.clearRect(0,0,W,H);
+      const cols=Math.ceil(W/RES)+1, rows=Math.ceil(H/RES)+1;
+      const vals=[];
+      for(let y=0;y<rows;y++){vals[y]=[];for(let x=0;x<cols;x++) vals[y][x]=noise.noise(x*RES*NSX,(y*RES*NSY)+(t*VSPEED*1000),t);}
+      const step=(MAX-MIN)/(LEVELS-1);
+      oc.lineWidth = lineW;
+      oc.lineCap   = 'round';
+      oc.strokeStyle = 'rgba(255,255,255,1)';
+      for(let l=0;l<LEVELS;l++){
+        const lv=MIN+step*l;
+        for(let y=0;y<rows-1;y++) for(let x=0;x<cols-1;x++){
+          const v00=vals[y][x],v10=vals[y][x+1],v01=vals[y+1][x],v11=vals[y+1][x+1],s=[];
+          if((v00<lv)!==(v10<lv))s.push({x:(x+(lv-v00)/(v10-v00))*RES,y:y*RES});
+          if((v10<lv)!==(v11<lv))s.push({x:(x+1)*RES,y:(y+(lv-v10)/(v11-v10))*RES});
+          if((v01<lv)!==(v11<lv))s.push({x:(x+(lv-v01)/(v11-v01))*RES,y:(y+1)*RES});
+          if((v00<lv)!==(v01<lv))s.push({x:x*RES,y:(y+(lv-v00)/(v01-v00))*RES});
+          if(s.length===2){
+            oc.beginPath();oc.moveTo(s[0].x,s[0].y);oc.lineTo(s[1].x,s[1].y);oc.stroke();
+          }
+        }
+      }
+
+      // 2. Fill letter shapes solid
+      bcc.clearRect(0,0,W,H);
+      bcc.drawImage(mask,0,0);
+      bcc.globalCompositeOperation='source-in';
+      const grad = bcc.createLinearGradient(0, 0, W, 0);
+      grad.addColorStop(0,    '#db3c37');
+      grad.addColorStop(0.33, '#ffe242');
+      grad.addColorStop(0.66, '#26e093');
+      grad.addColorStop(1,    '#299de6');
+      bcc.fillStyle = grad;
+      bcc.fillRect(0,0,W,H);
+      bcc.globalCompositeOperation='source-over';
+
+      // 3. Punch isobar lines as transparent holes through the letters
+      bcc.globalCompositeOperation='destination-out';
+      bcc.drawImage(off,0,0);
+      bcc.globalCompositeOperation='source-over';
+
+      // 4. Composite onto main canvas (video shows through the holes)
+      ctx.clearRect(0,0,W,H);
+      ctx.drawImage(bc,0,0);
+
+      requestAnimationFrame(drawFrame);
+    }
+
+    resize();
+    requestAnimationFrame(drawFrame);
+  })();
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SCROLL REVEAL + FORM
+  // ═══════════════════════════════════════════════════════════════════
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  document.getElementById('waitlistForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    document.querySelector('.form-row').style.opacity='0';
+    document.querySelector('.form-row').style.pointerEvents='none';
+    document.getElementById('successMsg').style.display='block';
+  });
+
+  document.getElementById('descWaitlistForm').addEventListener('submit', e => {
+    e.preventDefault();
+    document.getElementById('descWaitlistForm').style.display = 'none';
+    document.getElementById('descSuccess').style.display = 'block';
+  });
+
+  // ═══════════════════════════════════════════════════════════════════
+  // FORECAST MODE SWITCHER
+  // ═══════════════════════════════════════════════════════════════════
+  (function() {
+    const vids = {
+      wind:    document.getElementById('vid-wind'),
+      swell:   document.getElementById('vid-swell'),
+      weather: document.getElementById('vid-weather'),
+    };
+
+    const order = { wind: 1, swell: 2, weather: 3 };
+    const FADE = 800;
+    let activeKey = 'weather';
+
+    Object.values(vids).forEach(v => v.play().catch(() => {}));
+
+    const btns = document.querySelectorAll('.forecast-btn');
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.textContent.trim().toLowerCase();
+        if (key === activeKey) return;
+
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const prev = activeKey;
+        activeKey = key;
+
+        if (order[key] > order[prev]) {
+          // Going UP the stack — fade target in on top, old stays visible underneath
+          if (key !== 'wind') vids[key].style.opacity = '1';
+          // Clean up lower layers after fade completes
+          setTimeout(() => {
+            Object.keys(vids).forEach(k => {
+              if (k !== 'wind' && k !== activeKey) vids[k].style.opacity = '0';
+            });
+          }, FADE);
+        } else {
+          // Going DOWN the stack — target is hidden under current video.
+          // Show it instantly (invisible under current), then fade current out.
+          if (key !== 'wind') {
+            vids[key].style.transition = 'none';
+            vids[key].style.opacity = '1';
+            vids[key].offsetHeight; // force reflow
+            vids[key].style.transition = '';
+          }
+          if (prev !== 'wind') vids[prev].style.opacity = '0';
+        }
+      });
+    });
+  })();
+
+  // ═══════════════════════════════════════════════════════════════════
+  // LAMP HOVER TOOLTIP
+  // ═══════════════════════════════════════════════════════════════════
+  (function() {
+    FORECAST = {"wind": [{"kts":6,"dir":"WSW"},{"kts":6,"dir":"W"},{"kts":6,"dir":"SW"},{"kts":7,"dir":"SSW"},{"kts":12,"dir":"S"},{"kts":16,"dir":"SSW"},{"kts":22,"dir":"SW"},{"kts":27,"dir":"WSW"},{"kts":33,"dir":"W"},{"kts":36,"dir":"WNW"},{"kts":37,"dir":"NW"},{"kts":37,"dir":"NNW"},{"kts":38,"dir":"WSW"},{"kts":34,"dir":"W"},{"kts":30,"dir":"SW"},{"kts":27,"dir":"SSW"},{"kts":21,"dir":"S"},{"kts":16,"dir":"SSW"},{"kts":13,"dir":"SW"},{"kts":11,"dir":"WSW"},{"kts":10,"dir":"W"},{"kts":8,"dir":"WNW"},{"kts":7,"dir":"NW"},{"kts":7,"dir":"NNW"},{"kts":7,"dir":"WSW"},{"kts":6,"dir":"W"},{"kts":6,"dir":"SW"},{"kts":6,"dir":"SSW"},{"kts":6,"dir":"S"},{"kts":7,"dir":"SSW"},{"kts":7,"dir":"SW"},{"kts":10,"dir":"WSW"},{"kts":10,"dir":"W"},{"kts":11,"dir":"WNW"},{"kts":11,"dir":"NW"},{"kts":11,"dir":"NNW"},{"kts":11,"dir":"WSW"},{"kts":12,"dir":"W"},{"kts":12,"dir":"SW"},{"kts":12,"dir":"SSW"},{"kts":13,"dir":"S"},{"kts":14,"dir":"SSW"},{"kts":16,"dir":"SW"},{"kts":18,"dir":"WSW"},{"kts":20,"dir":"W"},{"kts":22,"dir":"WNW"},{"kts":24,"dir":"NW"},{"kts":25,"dir":"NNW"},{"kts":26,"dir":"WSW"},{"kts":27,"dir":"W"},{"kts":28,"dir":"SW"},{"kts":29,"dir":"SSW"},{"kts":27,"dir":"S"},{"kts":26,"dir":"SSW"},{"kts":25,"dir":"SW"},{"kts":23,"dir":"WSW"},{"kts":19,"dir":"W"},{"kts":17,"dir":"WNW"},{"kts":14,"dir":"NW"},{"kts":11,"dir":"NNW"},{"kts":11,"dir":"WSW"},{"kts":10,"dir":"W"},{"kts":8,"dir":"SW"},{"kts":7,"dir":"SSW"},{"kts":8,"dir":"S"},{"kts":7,"dir":"SSW"},{"kts":7,"dir":"SW"},{"kts":7,"dir":"WSW"},{"kts":7,"dir":"W"},{"kts":7,"dir":"WNW"},{"kts":7,"dir":"NW"},{"kts":7,"dir":"NNW"},{"kts":7,"dir":"WSW"},{"kts":6,"dir":"W"},{"kts":6,"dir":"SW"},{"kts":6,"dir":"SSW"},{"kts":6,"dir":"S"},{"kts":6,"dir":"SSW"},{"kts":6,"dir":"SW"},{"kts":7,"dir":"WSW"},{"kts":7,"dir":"W"},{"kts":7,"dir":"WNW"},{"kts":10,"dir":"NW"},{"kts":11,"dir":"NNW"},{"kts":13,"dir":"WSW"},{"kts":15,"dir":"W"},{"kts":16,"dir":"SW"},{"kts":18,"dir":"SSW"},{"kts":21,"dir":"S"},{"kts":22,"dir":"SSW"},{"kts":23,"dir":"SW"},{"kts":25,"dir":"WSW"},{"kts":26,"dir":"W"},{"kts":28,"dir":"WNW"},{"kts":30,"dir":"NW"},{"kts":31,"dir":"NNW"},{"kts":33,"dir":"WSW"},{"kts":35,"dir":"W"},{"kts":37,"dir":"SW"},{"kts":38,"dir":"SSW"},{"kts":40,"dir":"S"},{"kts":40,"dir":"SSW"},{"kts":40,"dir":"SW"},{"kts":40,"dir":"WSW"},{"kts":40,"dir":"W"},{"kts":40,"dir":"WNW"},{"kts":40,"dir":"NW"},{"kts":40,"dir":"NNW"},{"kts":40,"dir":"WSW"},{"kts":40,"dir":"W"},{"kts":40,"dir":"SW"},{"kts":40,"dir":"SSW"},{"kts":35,"dir":"S"},{"kts":32,"dir":"SSW"},{"kts":28,"dir":"SW"},{"kts":25,"dir":"WSW"},{"kts":22,"dir":"W"},{"kts":18,"dir":"WNW"},{"kts":16,"dir":"NW"},{"kts":14,"dir":"NNW"}], "swell": [{"ft":1.9,"dir":"WSW"},{"ft":1.9,"dir":"W"},{"ft":1.9,"dir":"WNW"},{"ft":1.8,"dir":"NW"},{"ft":1.8,"dir":"W"},{"ft":1.8,"dir":"WSW"},{"ft":2.0,"dir":"SW"},{"ft":3.4,"dir":"SSW"},{"ft":4.2,"dir":"S"},{"ft":4.6,"dir":"SSW"},{"ft":5.4,"dir":"SW"},{"ft":6.4,"dir":"WSW"},{"ft":6.9,"dir":"WSW"},{"ft":5.8,"dir":"W"},{"ft":5.0,"dir":"WNW"},{"ft":4.4,"dir":"NW"},{"ft":3.9,"dir":"W"},{"ft":3.4,"dir":"WSW"},{"ft":2.7,"dir":"SW"},{"ft":2.0,"dir":"SSW"},{"ft":1.9,"dir":"S"},{"ft":1.9,"dir":"SSW"},{"ft":1.9,"dir":"SW"},{"ft":1.9,"dir":"WSW"},{"ft":1.9,"dir":"WSW"},{"ft":1.9,"dir":"W"},{"ft":1.9,"dir":"WNW"},{"ft":1.9,"dir":"NW"},{"ft":1.9,"dir":"W"},{"ft":1.9,"dir":"WSW"},{"ft":1.9,"dir":"SW"},{"ft":1.9,"dir":"SSW"},{"ft":1.9,"dir":"S"},{"ft":1.9,"dir":"SSW"},{"ft":1.9,"dir":"SW"},{"ft":1.9,"dir":"WSW"},{"ft":1.9,"dir":"WSW"},{"ft":2.0,"dir":"W"},{"ft":2.0,"dir":"WNW"},{"ft":2.0,"dir":"NW"},{"ft":2.1,"dir":"W"},{"ft":2.4,"dir":"WSW"},{"ft":3.0,"dir":"SW"},{"ft":3.5,"dir":"SSW"},{"ft":3.7,"dir":"S"},{"ft":3.8,"dir":"SSW"},{"ft":3.9,"dir":"SW"},{"ft":4.0,"dir":"WSW"},{"ft":4.1,"dir":"WSW"},{"ft":4.1,"dir":"W"},{"ft":4.2,"dir":"WNW"},{"ft":4.2,"dir":"NW"},{"ft":4.3,"dir":"W"},{"ft":4.3,"dir":"WSW"},{"ft":4.1,"dir":"SW"},{"ft":3.9,"dir":"SSW"},{"ft":3.6,"dir":"S"},{"ft":3.4,"dir":"SSW"},{"ft":3.0,"dir":"SW"},{"ft":2.6,"dir":"WSW"},{"ft":2.2,"dir":"WSW"},{"ft":2.0,"dir":"W"},{"ft":2.0,"dir":"WNW"},{"ft":2.0,"dir":"NW"},{"ft":2.0,"dir":"W"},{"ft":2.0,"dir":"WSW"},{"ft":2.0,"dir":"SW"},{"ft":2.0,"dir":"SSW"},{"ft":2.0,"dir":"S"},{"ft":2.0,"dir":"SSW"},{"ft":2.0,"dir":"SW"},{"ft":2.0,"dir":"WSW"},{"ft":2.0,"dir":"WSW"},{"ft":2.0,"dir":"W"},{"ft":2.0,"dir":"WNW"},{"ft":2.0,"dir":"NW"},{"ft":2.0,"dir":"W"},{"ft":2.1,"dir":"WSW"},{"ft":2.0,"dir":"SW"},{"ft":2.2,"dir":"SSW"},{"ft":2.7,"dir":"S"},{"ft":3.1,"dir":"SSW"},{"ft":3.4,"dir":"SW"},{"ft":3.7,"dir":"WSW"},{"ft":3.9,"dir":"WSW"},{"ft":4.1,"dir":"W"},{"ft":4.3,"dir":"WNW"},{"ft":4.5,"dir":"NW"},{"ft":4.8,"dir":"W"},{"ft":5.1,"dir":"WSW"},{"ft":5.6,"dir":"SW"},{"ft":6.2,"dir":"SSW"},{"ft":6.7,"dir":"S"},{"ft":7.1,"dir":"SSW"},{"ft":7.4,"dir":"SW"},{"ft":7.6,"dir":"WSW"},{"ft":7.9,"dir":"WSW"},{"ft":8.0,"dir":"W"},{"ft":8.0,"dir":"WNW"},{"ft":8.0,"dir":"NW"},{"ft":8.0,"dir":"W"},{"ft":8.0,"dir":"WSW"},{"ft":8.0,"dir":"SW"},{"ft":8.0,"dir":"SSW"},{"ft":8.0,"dir":"S"},{"ft":8.0,"dir":"SSW"},{"ft":8.0,"dir":"SW"},{"ft":8.0,"dir":"WSW"},{"ft":8.0,"dir":"WSW"},{"ft":8.0,"dir":"W"},{"ft":8.0,"dir":"WNW"},{"ft":7.9,"dir":"NW"},{"ft":7.7,"dir":"W"},{"ft":7.5,"dir":"WSW"},{"ft":7.4,"dir":"SW"},{"ft":7.2,"dir":"SSW"},{"ft":7.0,"dir":"S"},{"ft":6.5,"dir":"SSW"},{"ft":6.2,"dir":"WSW"},{"ft":6.0,"dir":"SW"}], "weather": [{"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Overcast", "code": 4}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Storm", "code": 8}, {"label": "Storm", "code": 8}, {"label": "Storm", "code": 8}, {"label": "Storm", "code": 8}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Rain", "code": 6}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Sunny", "code": 0}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Overcast", "code": 4}, {"label": "Sunny", "code": 0}]};
+    const DAYS = 5;
+    const HOURS = DAYS * 24;
+    const DAY_NAMES = ['Today','Tomorrow','Day 3','Day 4','Day 5'];
+
+    const zone      = document.getElementById('lampHoverZone');
+    const tooltip   = document.getElementById('lampTooltip');
+    const stem      = document.getElementById('lampStem');
+    const crosshair = document.getElementById('lampCrosshair');
+    const ttMode    = document.getElementById('ttMode');
+    const ttDay     = document.getElementById('ttDay');
+    const ttValue   = document.getElementById('ttValue');
+
+
+    // Day row is now an SVG image — no JS needed
+
+    // Get active forecast mode from buttons
+    function getMode() {
+      const active = document.querySelector('.forecast-btn.active');
+      return active ? active.textContent.trim().toLowerCase() : 'wind';
+    }
+
+    function formatHour(h) {
+      return String(h).padStart(2,'0') + ':00';
+    }
+
+    function getTooltipContent(mode, hourIndex) {
+      const day  = Math.floor(hourIndex / 24);
+      const hour = hourIndex % 24;
+      const dayLabel = DAY_NAMES[day] || `Day ${day+1}`;
+      const timeLabel = formatHour(hour);
+
+      let modeLabel;
+      if (mode === 'wind')        modeLabel = 'Wind forecast';
+      else if (mode === 'swell')  modeLabel = 'Swell forecast';
+      else                        modeLabel = 'Weather forecast';
+
+      return { modeLabel, dayLabel, timeLabel };
+    }
+
+    const daySvg = zone.querySelector('.lamp-day-svg');
+    const ctiWrap = document.getElementById('ctiWrap');
+
+    zone.addEventListener('mousemove', e => {
+      const rect = zone.getBoundingClientRect();
+      const xFrac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const hourIndex = Math.min(HOURS - 1, Math.floor(xFrac * HOURS));
+      const xPct = (xFrac * 100).toFixed(2) + '%';
+
+      const mode = getMode();
+      const { modeLabel, dayLabel, timeLabel } = getTooltipContent(mode, hourIndex);
+
+      // Position tooltip freely — no clamping
+      const xPx = xFrac * rect.width;
+      crosshair.style.left = xPct;
+      stem.style.left      = xPct;
+      tooltip.style.left   = xPx + 'px';
+
+      // Update content
+      ttMode.textContent = modeLabel;
+      ttDay.textContent  = `${dayLabel} · ${timeLabel}`;
+
+      // Format value with bold number
+      if (mode === 'wind') {
+        const d = FORECAST.wind[hourIndex];
+        ttValue.innerHTML = `<strong>${d.kts}</strong> kts ${d.dir}`;
+      } else if (mode === 'swell') {
+        const d = FORECAST.swell[hourIndex];
+        ttValue.innerHTML = `<strong>${d.ft}</strong> ft ${d.dir}`;
+      } else {
+        const d = FORECAST.weather[hourIndex];
+        ttValue.innerHTML = `<strong>${d.label}</strong>`;
+      }
+
+      tooltip.classList.add('visible');
+      stem.classList.add('visible');
+      crosshair.classList.add('visible');
+      daySvg.classList.add('visible');
+      ctiWrap.classList.add('visible');
+    });
+
+    zone.addEventListener('mouseleave', () => {
+      tooltip.classList.remove('visible');
+      stem.classList.remove('visible');
+      crosshair.classList.remove('visible');
+      daySvg.classList.remove('visible');
+      ctiWrap.classList.remove('visible');
+    });
+  })();
+
+  // ═══════════════════════════════════════════════════════════════════
+  // CURRENT TIME INDICATOR — animates 10:00→16:00 over 15s video loop
+  // ═══════════════════════════════════════════════════════════════════
+  (function() {
+    const START_HOUR = 3.8;
+    const END_HOUR   = 18;
+    const TOTAL_HOURS = 120;    // 5 days
+
+    const wrap    = document.getElementById('ctiWrap');
+    const ctiTime = document.getElementById('ctiTime');
+    const ctiVal  = document.getElementById('ctiValue');
+
+    function getMode() {
+      const active = document.querySelector('.forecast-btn.active');
+      return active ? active.textContent.trim().toLowerCase() : 'wind';
+    }
+
+    function getValue(hourIndex) {
+      const mode = getMode();
+      if (mode === 'wind') {
+        const d = FORECAST.wind[hourIndex];
+        return d ? d.kts + ' kts ' + d.dir : '';
+      } else if (mode === 'swell') {
+        const d = FORECAST.swell[hourIndex];
+        return d ? d.ft + ' ft ' + d.dir : '';
+      } else {
+        const d = FORECAST.weather[hourIndex];
+        return d ? d.label : '';
+      }
+    }
+
+    // Use vid-wind as timing source — always playing, same duration as all videos.
+    // This guarantees the CTI position stays locked to the actual video frame.
+    const refVideo = document.getElementById('vid-wind');
+    const FADE_S = 1; // fade duration in seconds at each end
+
+    function animate() {
+      const duration   = refVideo.duration || 15;
+      const current    = refVideo.currentTime;
+      const t          = current / duration;
+      const hour       = START_HOUR + t * (END_HOUR - START_HOUR);
+      const hourInt    = Math.floor(hour);
+      const pct        = (hour / TOTAL_HOURS * 100).toFixed(3) + '%';
+      const hourIdx    = Math.min(TOTAL_HOURS - 1, hourInt);
+
+      wrap.style.left = pct;
+      ctiTime.textContent = String(hourInt).padStart(2,'0') + ':00';
+      ctiVal.textContent  = getValue(hourIdx);
+
+      // Compute fade fraction from video position (0→1 in first second, 1→0 in last second)
+      const dur = isFinite(duration) ? duration : 15;
+      let fade = 1;
+      if (current < FADE_S)
+        fade = current / FADE_S;
+      else if (current > dur - FADE_S)
+        fade = (dur - current) / FADE_S;
+      fade = Math.max(0, Math.min(1, fade));
+
+      // Scale to full opacity when hovered, 0.15 at rest
+      const maxOpacity = wrap.classList.contains('visible') ? 1 : 0.15;
+      wrap.style.opacity = fade * maxOpacity;
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  })();
+
+  // ═══════════════════════════════════════════════════════════════════
+  // HAMBURGER MENU
+  // ═══════════════════════════════════════════════════════════════════
+  (function() {
+    const btn  = document.getElementById('navHamburger');
+    const menu = document.getElementById('navMobileMenu');
+
+    btn.addEventListener('click', () => {
+      const open = btn.classList.toggle('open');
+      menu.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+
+    // Close on link click
+    menu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        btn.classList.remove('open');
+        menu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+  })();
+  // ═══════════════════════════════════════════════════════════════════
+  // HERO STAGE SCALING — scales the 2560×1440 stage to cover the
+  // viewport, identical to object-fit: cover maths.
+  // Everything inside (videos, overlays, lamp zone, tooltips) scales
+  // together automatically — no per-element scale needed.
+  // ═══════════════════════════════════════════════════════════════════
+  (function() {
+    const stage  = document.getElementById('heroStage');
+    const STAGE_W = 2560;
+    const STAGE_H = 1440;
+
+    function scaleStage() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      // Cover: use whichever axis needs the larger scale so the stage
+      // fully fills the viewport (same logic as object-fit: cover)
+      const scale = Math.max(vw / STAGE_W, vh / STAGE_H);
+      const left  = (vw - STAGE_W * scale) / 2;
+      const top   = (vh - STAGE_H * scale) / 2;
+      stage.style.transform = `scale(${scale})`;
+      stage.style.left      = left + 'px';
+      stage.style.top       = top  + 'px';
+    }
+
+    scaleStage();
+    window.addEventListener('resize', scaleStage);
+  })();
+
+  </script>
+
+</body>
+</html>
