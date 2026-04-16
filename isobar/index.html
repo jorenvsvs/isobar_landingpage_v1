@@ -309,7 +309,7 @@
     }
 
     .rule-line  { flex: 1; height: 1px; background: var(--border); }
-    .rule-label { font-family: 'Josefin Sans', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+    .rule-label { font-family: 'Josefin Sans', sans-serif; font-weight: 700; font-size: 1.44rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
 
     /* ── DESCRIPTION ───────────────────────────── */
     .desc-block {
@@ -1496,13 +1496,6 @@
         </div>
       </div>
 
-      <form id="descWaitlistForm" name="waitlist-desc">
-        <div class="form-row">
-          <input type="email" name="email" placeholder="your@email.com" required autocomplete="email">
-          <button type="submit">Join waitlist</button>
-        </div>
-      </form>
-      <p class="desc-success" id="descSuccess" style="display:none;">You're on the list. We'll be in touch.</p>
     </div>
   </div>
 
@@ -2019,11 +2012,9 @@
       bcc.clearRect(0,0,W,H);
       bcc.drawImage(mask,0,0);
       bcc.globalCompositeOperation='source-in';
-      const grad = bcc.createLinearGradient(0, 0, W, 0);
-      grad.addColorStop(0,    '#db3c37');
-      grad.addColorStop(0.33, '#ffe242');
-      grad.addColorStop(0.66, '#26e093');
-      grad.addColorStop(1,    '#299de6');
+      const grad = bcc.createRadialGradient(W * 0.5, H * 0.5, 0, W * 0.5, H * 0.5, W * 0.52);
+      grad.addColorStop(0,   '#6b6058');
+      grad.addColorStop(1,   '#2e2a27');
       bcc.fillStyle = grad;
       bcc.fillRect(0,0,W,H);
       bcc.globalCompositeOperation='source-over';
@@ -2055,12 +2046,6 @@
     document.querySelector('.form-row').style.opacity='0';
     document.querySelector('.form-row').style.pointerEvents='none';
     document.getElementById('successMsg').style.display='block';
-  });
-
-  document.getElementById('descWaitlistForm').addEventListener('submit', e => {
-    e.preventDefault();
-    document.getElementById('descWaitlistForm').style.display = 'none';
-    document.getElementById('descSuccess').style.display = 'block';
   });
 
   // ═══════════════════════════════════════════════════════════════════
