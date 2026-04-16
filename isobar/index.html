@@ -175,18 +175,19 @@
       pointer-events: none;
     }
 
-    /* Fade to page bg at bottom — kept short so lamp stays fully visible */
-    .hero-overlay-bottom {
+    /* Fade to page bg at bottom — on .hero so it's viewport-relative,
+       not inside the scaled hero-stage */
+    .hero::after {
+      content: '';
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      height: 28%;
+      height: 35%;
       background: linear-gradient(
         to bottom,
         transparent 0%,
-        rgba(7,9,15,0.45) 60%,
-        rgba(7,9,15,0.85) 100%
+        #0b0b0b 100%
       );
-      z-index: 1;
+      z-index: 3;
       pointer-events: none;
     }
 
@@ -1404,7 +1405,7 @@
         </video>
       </div>
       <div class="hero-overlay-top"></div>
-      <div class="hero-overlay-bottom"></div>
+      <!-- bottom fade now handled by .hero::after pseudo-element -->
 
       <!-- Lamp hover zone — % coords are relative to stage, always tracking the lamp -->
       <div class="lamp-hover-zone" id="lampHoverZone">
