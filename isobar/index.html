@@ -1967,14 +1967,14 @@
     }
     const noise = new SN();
 
-    const NSX=0.0051, NSY=0.008, SPEED=0.00102, VSPEED=0.0008, LEVELS=20, RES=3, MIN=-2.0, MAX=0.5;
+    const NSX=0.0051, NSY=0.008, SPEED=0.00102, VSPEED=0.0008, LEVELS=60, RES=3, MIN=-2.0, MAX=0.5;
 
     let t = 0;
 
     function drawFrame() {
       t += SPEED;
       const W = lc.width, H = lc.height;
-      const lineW = Math.max(4.5, H * 0.075); // 3x thicker lines
+      const lineW = Math.max(1.5, H * 0.025); // thick lines — ~7% of canvas height
 
       // 1. Draw thick isobar lines into off canvas (solid white)
       oc.clearRect(0,0,W,H);
