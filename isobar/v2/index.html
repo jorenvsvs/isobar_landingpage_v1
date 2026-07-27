@@ -1,12 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ISOBAR â€” by Almanac</title>
+<title>ISOBAR — by Almanac</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Faustina:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Faustina:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg-top:#0b0b0b;
@@ -16,7 +16,7 @@
     --ink-mute:#7a766c;
     --bone:#ddd5c4;
     --line:rgba(221,213,196,.14);
-    /* wind scale: cool blue-green â†’ yellow â†’ amber â†’ deep red */
+    /* wind scale: cool blue-green → yellow → amber → deep red */
     --g1:#2bb6a6; --g2:#8fc06a; --g3:#e4c94e; --g4:#e2952f; --g5:#b5322a;
   }
 
@@ -24,7 +24,7 @@
   html,body{width:100%}
 
   body{
-    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     background:linear-gradient(180deg,var(--bg-top),var(--bg-bottom));
     color:var(--ink);
     min-height:100vh;
@@ -33,13 +33,13 @@
     overflow-x:hidden;
   }
 
-  /* â”€â”€ ISOBAR BG CANVAS (exact almanac.works implementation) â”€â”€ */
+  /* ── ISOBAR BG CANVAS (exact almanac.works implementation) ── */
   #isobarCanvas{
     position:fixed; inset:0; width:100%; height:100%;
     z-index:0; opacity:.18; pointer-events:none;
   }
 
-  /* â”€â”€ shared layout â”€â”€ */
+  /* ── shared layout ── */
   header,main,footer{ position:relative; z-index:1; }
   .wrap{ max-width:1080px; margin:0 auto; padding:0 clamp(24px,6vw,64px); }
 
@@ -80,7 +80,7 @@
   .media.icon{ border:1px solid var(--line); }
   .media.icon img{ width:auto; height:52%; opacity:.85; }
 
-  /* â”€â”€ top bar â”€â”€ */
+  /* ── top bar ── */
   header.bar{
     position:sticky; top:0; z-index:20;
     display:flex; align-items:center; justify-content:space-between;
@@ -98,7 +98,7 @@
   nav a:hover{ color:var(--ink-soft); }
   @media (max-width:600px){ nav{display:none} }
 
-  /* â”€â”€ hero â”€â”€ */
+  /* ── hero ── */
   .hero{
     min-height:calc(100vh - 64px);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -137,7 +137,7 @@
   }
   .btn:hover{ border-color:rgba(221,213,196,.4); background:rgba(221,213,196,.04); }
 
-  /* â”€â”€ how it reads: the three forecast scales â”€â”€ */
+  /* ── how it reads: the three forecast scales ── */
   .scales{ margin-top:clamp(30px,4vw,48px); display:flex; flex-direction:column; gap:clamp(26px,3.4vw,40px); }
   .scale-head{ display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-bottom:11px; flex-wrap:wrap; }
   .scale-name{ font-family:"Faustina",Georgia,serif; font-size:1.15rem; color:var(--ink); }
@@ -148,7 +148,7 @@
   .band.swell{ background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g5)); }
   .labels{ display:flex; justify-content:space-between; margin-top:11px; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-mute); }
 
-  /* â”€â”€ details / anatomy â”€â”€ */
+  /* ── details / anatomy ── */
   .detail-hero{ margin-top:clamp(34px,5vw,60px); border:1px solid var(--line); border-radius:18px; overflow:hidden; aspect-ratio:16/7; }
   .detail-hero img{ width:100%; height:100%; object-fit:cover; display:block; }
   .detail-grid{ margin-top:clamp(28px,3.5vw,44px); display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:clamp(20px,2.6vw,32px); }
@@ -157,7 +157,7 @@
   .detail h4{ font-family:"Faustina",Georgia,serif; font-weight:500; font-size:1.12rem; color:var(--ink); }
   .detail p{ font-size:.92rem; line-height:1.55; color:var(--ink-soft); }
 
-  /* â”€â”€ models â”€â”€ */
+  /* ── models ── */
   .models-grid{ margin-top:clamp(40px,5vw,60px); display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(16px,2vw,24px); }
   @media (max-width:720px){ .models-grid{ grid-template-columns:1fr; } }
   .model{
@@ -168,7 +168,7 @@
   .model .price{ font-size:1.1rem; color:var(--ink); }
   .model .spec{ font-size:.9rem; color:var(--ink-mute); margin-top:auto; }
 
-  /* â”€â”€ waitlist â”€â”€ */
+  /* ── waitlist ── */
   .waitlist{ text-align:center; }
   .form{ margin:clamp(30px,4vw,44px) auto 0; max-width:440px; display:flex; flex-direction:column; gap:16px; }
   .form input[type=email]{
@@ -179,7 +179,7 @@
   .check{ display:flex; align-items:center; gap:10px; justify-content:center; font-size:.86rem; color:var(--ink-soft); }
   .btn.solid{ border-color:rgba(221,213,196,.35); }
 
-  /* â”€â”€ footer / studio â”€â”€ */
+  /* ── footer / studio ── */
   footer{ border-top:1px solid var(--line); padding:clamp(56px,7vw,84px) 0; }
   .studio{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:22px; }
   .almanac-logo{ width:clamp(150px,20vw,210px); height:auto; opacity:.8; }
@@ -197,7 +197,7 @@
 
   <canvas id="isobarCanvas" aria-hidden="true"></canvas>
 
-  <!-- â•â• TOP BAR â•â• -->
+  <!-- ══ TOP BAR ══ -->
   <header class="bar">
     <div class="brand">
       <svg class="emblem" viewBox="314 10 112 118" xmlns="http://www.w3.org/2000/svg" aria-label="Almanac">
@@ -215,31 +215,31 @@
 
   <main>
 
-    <!-- â•â• HERO â€” what it is â•â• -->
+    <!-- ══ HERO — what it is ══ -->
     <section class="hero">
       <h1 class="headline"><span class="l1">An ambient forecast instrument</span><span class="l2">for <em>sky and sea</em></span></h1>
       <p class="subline">Weather, wind, swell and tide.</p>
       <div class="bar-wrap"><div class="lightbar" aria-hidden="true"></div></div>
       <p class="philosophy">No&nbsp;app.&nbsp;&nbsp;No&nbsp;screen.&nbsp;&nbsp;No&nbsp;notifications.</p>
       <div class="hero-cta">
-        <span class="tag">Early 2027 Â· Limited run</span>
+        <span class="tag">Early 2027 · Limited run</span>
         <a class="btn" href="#waitlist">Join the waitlist</a>
       </div>
     </section>
 
-    <!-- â•â• 01 â€” the idea â•â• -->
+    <!-- ══ 01 — the idea ══ -->
     <section id="idea" class="blockout">
       <div class="wrap">
-        <p class="eyebrow">01 â€” The idea</p>
+        <p class="eyebrow">01 — The idea</p>
         <h2 class="h2">A light that knows what the days will hold.</h2>
-        <p class="lede">No app to open. No screen to read. No notification to dismiss. ISOBAR sits on your wall and speaks the weather in colour â€” something you feel across the room rather than something you check.</p>
+        <p class="lede">No app to open. No screen to read. No notification to dismiss. ISOBAR sits on your wall and speaks the weather in colour — something you feel across the room rather than something you check.</p>
       </div>
     </section>
 
-    <!-- â•â• 02 â€” how it reads â•â• -->
+    <!-- ══ 02 — how it reads ══ -->
     <section id="reads" class="blockout">
       <div class="wrap">
-        <p class="eyebrow">02 â€” How it reads</p>
+        <p class="eyebrow">02 — How it reads</p>
         <h2 class="h2">It speaks in light.</h2>
         <p class="lede">Each forecast mode speaks its own language of colour. A glance across the room tells you what the days ahead will bring.</p>
         <div class="scales">
@@ -251,7 +251,7 @@
           <div class="scale-row">
             <div class="scale-head"><span class="scale-name">Wind</span></div>
             <div class="band wind" aria-hidden="true"></div>
-            <div class="labels"><span>0</span><span>5â€“10</span><span>15â€“20</span><span>25â€“30</span><span>35â€“40</span><span>45+ kts</span></div>
+            <div class="labels"><span>0</span><span>5–10</span><span>15–20</span><span>25–30</span><span>35–40</span><span>45+ kts</span></div>
           </div>
           <div class="scale-row">
             <div class="scale-head"><span class="scale-name">Swell</span></div>
@@ -263,76 +263,76 @@
       </div>
     </section>
 
-    <!-- â•â• 03 â€” right now (live) â•â• -->
+    <!-- ══ 03 — right now (live) ══ -->
     <section id="live" class="blockout">
       <div class="wrap">
-        <p class="eyebrow">03 â€” Right now</p>
+        <p class="eyebrow">03 — Right now</p>
         <h2 class="h2">And what's <em>happening now.</em></h2>
-        <p class="lede">Stand ISOBAR upright and it leaves the forecast behind to show live conditions â€” the tide as it turns, the wind as it blows. Every ISOBAR is built ready for it; a stand is all it needs.</p>
-        <p class="note">Several stands â€” and a wall mount â€” to choose from.</p>
+        <p class="lede">Stand ISOBAR upright and it leaves the forecast behind to show live conditions — the tide as it turns, the wind as it blows. Every ISOBAR is built ready for it; a stand is all it needs.</p>
+        <p class="note">Several stands — and a wall mount — to choose from.</p>
         <div class="media tall icon"><img src="../Assets/ISOBAR_icon_Live_tide_icon.svg" alt="Live tide"></div>
       </div>
     </section>
 
-    <!-- â•â• 04 â€” the object â•â• -->
+    <!-- ══ 04 — the object ══ -->
     <section id="object" class="blockout">
       <div class="wrap">
-        <p class="eyebrow">04 â€” The object</p>
+        <p class="eyebrow">04 — The object</p>
         <h2 class="h2">Hand-finished, built to live with.</h2>
         <p class="lede">Solid timber. Touch to switch modes. Wall-mountable. It dims itself to the room, so it never asks for attention it doesn't need.</p>
         <div class="media filled"><img src="../Assets/Isobar_Feature_stills_Features_Close_A_V01_0000.jpg" alt="ISOBAR detail"></div>
       </div>
     </section>
 
-    <!-- â•â• 05 â€” the details â•â• -->
+    <!-- ══ 05 — the details ══ -->
     <section id="details" class="blockout">
       <div class="wrap">
-        <p class="eyebrow">05 â€” The details</p>
+        <p class="eyebrow">05 — The details</p>
         <h2 class="h2">Considered, down to the edge.</h2>
-        <p class="lede">Every part of ISOBAR earns its place â€” nothing to read, nothing to configure, nothing that asks for attention it doesn't need.</p>
+        <p class="lede">Every part of ISOBAR earns its place — nothing to read, nothing to configure, nothing that asks for attention it doesn't need.</p>
         <div class="detail-hero"><img src="../Assets/Isobar_Feature_stills_Features_Close_C_V01_0000.jpg" alt="ISOBAR detail"></div>
         <div class="detail-grid">
           <div class="detail"><span class="idx">01</span><h4>Day, midday &amp; midnight markers</h4><p>Fine indicators engraved into the face, so you can read where you are across the days at a single glance.</p></div>
           <div class="detail"><span class="idx">02</span><h4>Touch to switch modes</h4><p>A touch of the surface cycles through weather, wind, swell and live. No buttons, no menus.</p></div>
-          <div class="detail"><span class="idx">03</span><h4>12V power connection</h4><p>A single discreet 12V input on the back â€” the same whether it's wall-mounted or on its stand.</p></div>
-          <div class="detail"><span class="idx">04</span><h4>Engraved ISOBAR mark</h4><p>The wordmark quietly scored along the top edge â€” the only branding on the piece.</p></div>
+          <div class="detail"><span class="idx">03</span><h4>12V power connection</h4><p>A single discreet 12V input on the back — the same whether it's wall-mounted or on its stand.</p></div>
+          <div class="detail"><span class="idx">04</span><h4>Engraved ISOBAR mark</h4><p>The wordmark quietly scored along the top edge — the only branding on the piece.</p></div>
           <div class="detail"><span class="idx">05</span><h4>Adapts to the room</h4><p>An ambient sensor dims the light from bright afternoons down to the dark of night.</p></div>
           <div class="detail"><span class="idx">06</span><h4>Solid timber</h4><p>Each ISOBAR is cut and hand-finished from a single piece of timber.</p></div>
         </div>
       </div>
     </section>
 
-    <!-- â•â• 06 â€” models â•â• -->
+    <!-- ══ 06 — models ══ -->
     <section id="models" class="blockout">
       <div class="wrap">
-        <p class="eyebrow">06 â€” Models</p>
+        <p class="eyebrow">06 — Models</p>
         <h2 class="h2">Three sizes, three horizons.</h2>
         <div class="models-grid">
           <div class="model">
             <h3>ISOBAR 3</h3>
-            <span class="price">â‚¬239</span>
-            <span class="spec">Three-day forecast Â· placeholder spec</span>
+            <span class="price">€239</span>
+            <span class="spec">Three-day forecast · placeholder spec</span>
           </div>
           <div class="model">
             <h3>ISOBAR 5</h3>
-            <span class="price">â‚¬329</span>
-            <span class="spec">Five-day forecast Â· placeholder spec</span>
+            <span class="price">€329</span>
+            <span class="spec">Five-day forecast · placeholder spec</span>
           </div>
           <div class="model">
             <h3>ISOBAR 7</h3>
-            <span class="price">â‚¬449</span>
-            <span class="spec">Seven-day forecast Â· placeholder spec</span>
+            <span class="price">€449</span>
+            <span class="spec">Seven-day forecast · placeholder spec</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- â•â• 07 â€” waitlist â•â• -->
+    <!-- ══ 07 — waitlist ══ -->
     <section id="waitlist" class="waitlist blockout">
       <div class="wrap">
-        <p class="eyebrow">07 â€” Waitlist</p>
+        <p class="eyebrow">07 — Waitlist</p>
         <h2 class="h2" style="margin:0 auto;">Join the waitlist.</h2>
-        <p class="lede" style="margin-left:auto;margin-right:auto;">Early 2027 Â· Limited run. Be first to know when ISOBAR opens for order.</p>
+        <p class="lede" style="margin-left:auto;margin-right:auto;">Early 2027 · Limited run. Be first to know when ISOBAR opens for order.</p>
         <form class="form" onsubmit="return false;">
           <input type="email" placeholder="your@email.com" aria-label="Email address">
           <label class="check"><input type="checkbox"> I'd also want live tide &amp; wind</label>
@@ -343,7 +343,7 @@
 
   </main>
 
-  <!-- â•â• FOOTER â€” studio â•â• -->
+  <!-- ══ FOOTER — studio ══ -->
   <footer>
     <div class="wrap studio">
       <svg class="almanac-logo" xmlns="http://www.w3.org/2000/svg" viewBox="190 0 354.6 229.04" aria-label="Almanac.works">
@@ -364,7 +364,7 @@
         </g>
         <path d="M374.75,13.42c-.84-.04-1.68-.06-2.52-.06-14.6,0-28.72,5.82-39.09,16.19-10.96,10.96-16.84,26.13-16.13,41.61,1.3,28.17,24.38,51.26,52.55,52.55,15.48.71,30.65-5.17,41.61-16.13s16.84-26.13,16.13-41.61c-1.3-28.17-24.38-51.26-52.55-52.55ZM387.93,113.81c-5.07,1.78-10.38,2.68-15.78,2.68-12.8,0-24.85-5.01-33.92-14.12-.44-.45-.63-1.08-.49-1.69.14-.61.58-1.1,1.17-1.31.47-.17.95-.34,1.42-.5,4.8-1.72,9.32-3.34,15.16-2.41,4.69.75,8.08,2.79,12.37,5.36,5.03,3.02,10.73,6.44,19.86,8.51.8.18,1.37.85,1.41,1.67.05.81-.44,1.54-1.21,1.81ZM406.25,102.18c-.69.7-1.4,1.38-2.12,2.02-.44.4-1.04.62-1.64.62-.03,0-.06,0-.09,0-16.4-.63-24.04-5.21-30.79-9.26-4.57-2.74-8.89-5.33-14.96-6.31-7.7-1.24-13.84.97-18.78,2.74-1.5.54-3.06,1.1-4.54,1.5-1.07.29-2.21-.19-2.77-1.16-.51-.89-1.01-1.83-1.47-2.8-.58-1.19-.09-2.65,1.09-3.25,2.78-1.41,5.39-3.13,7.91-4.79,6.49-4.28,12.62-8.33,21.67-7.55,6.53.56,10.77,3.94,16.64,8.62,6.55,5.23,14.71,11.73,28.74,15.51.85.23,1.5.87,1.73,1.72.23.85,0,1.73-.62,2.36ZM415.76,88.4c-.4.86-.82,1.73-1.27,2.58-.42.79-1.25,1.27-2.13,1.27-.15,0-.31-.01-.47-.05-15.68-3.13-23.79-9.6-30.95-15.31-6.09-4.86-11.84-9.44-20.57-10.19-11.58-.98-19.4,4.18-26.3,8.73-1.78,1.18-3.62,2.39-5.49,3.45-.67.38-1.5.42-2.2.09-.71-.33-1.22-.98-1.36-1.75-.2-1.08-.36-2.18-.49-3.27h0c-.1-.87.3-1.74,1.04-2.26,2.93-2.05,5.74-4.86,8.71-7.83,7.93-7.93,16.13-16.12,28.82-14.61,9.27,1.1,15.74,7.76,23.22,15.48,7.32,7.54,15.63,16.09,28.02,20.38.64.22,1.16.71,1.43,1.33.27.63.26,1.35-.03,1.97ZM419.53,75.79c-.12.81-.6,1.51-1.3,1.92-.42.25-.9.38-1.37.38-.32,0-.63-.06-.94-.17-10.34-3.84-17.46-11.17-24.35-18.26-7.75-7.98-15.75-16.22-27.59-17.63-16.2-1.93-26.97,8.83-34.83,16.69l-.38.38c-.61.61-1.52.73-2.27.31-.75-.42-1.12-1.27-.92-2.11,2.48-10.26,8.43-19.57,16.74-26.21,8.57-6.84,18.88-10.45,29.84-10.45,26.42,0,47.92,21.5,47.92,47.92,0,2.41-.18,4.84-.55,7.23Z"/>
       </svg>
-      <p>ISOBAR is an instrument by Almanac â€” for people who live by the forecast.</p>
+      <p>ISOBAR is an instrument by Almanac — for people who live by the forecast.</p>
       <div class="foot-links">
         <a href="#">Contact</a>
         <a href="#">Instagram</a>
@@ -374,9 +374,9 @@
   </footer>
 
   <script>
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ISOBAR BACKGROUND â€” exact implementation from the almanac.works landing page
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════════
+  // ISOBAR BACKGROUND — exact implementation from the almanac.works landing page
+  // ═══════════════════════════════════════════════════════════════════
   (function () {
     const canvas = document.getElementById('isobarCanvas');
     const ctx = canvas.getContext('2d');
