@@ -108,8 +108,8 @@
   /* hero background video — fades out at the bottom into the isobar field */
   .hero-media{
     position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
-    -webkit-mask-image:linear-gradient(to bottom,#000 56%,transparent 100%);
-            mask-image:linear-gradient(to bottom,#000 56%,transparent 100%);
+    -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 100px),transparent 100%);
+            mask-image:linear-gradient(to bottom,#000 calc(100% - 100px),transparent 100%);
   }
   .hero-media video{ width:100%; height:100%; object-fit:cover; display:block; }
   /* legibility scrim: darken top (under the sticky header) and lower third */
