@@ -122,11 +122,18 @@
   .headline{
     font-family:"Faustina",Georgia,serif; font-weight:300;
     font-size:clamp(2.1rem,5.2vw,4.5rem); line-height:1.04;
-    letter-spacing:-.015em; max-width:none; color:#808080; mix-blend-mode:overlay;
+    letter-spacing:-.015em; max-width:none; color:#808080;
   }
   .headline .l1, .headline .l2{ display:block; }
   .headline .l1{ white-space:nowrap; }
   .headline em{ font-style:italic; font-weight:400; }
+
+  /* video-masked headline: SVG text masks a darker, offset copy of the hero video */
+  .hl-video-svg{ display:block; width:min(94%,940px); height:auto; margin:0 auto; overflow:visible; }
+  .hl-video-svg .hl-t{ font-family:"Faustina",Georgia,serif; font-weight:300; font-size:64px; letter-spacing:-.5px; fill:#fff; }
+  .hl-video-svg .hl-em{ font-style:italic; font-weight:400; }
+  .hl-vidfill{ width:1000px; height:240px; }
+  .hl-vidfill video{ display:block; width:100%; height:100%; object-fit:cover; object-position:50% 22%; filter:brightness(.6); }
   @media (max-width:560px){
     .headline{ font-size:clamp(2rem,8.5vw,3rem); }
     .headline .l1{ white-space:normal; }
@@ -243,7 +250,24 @@
       </div>
       <div class="hero-inner">
         <div class="hero-top">
-          <h1 class="headline"><span class="l1">An ambient forecast instrument</span><span class="l2">for <em>sky and sea</em></span></h1>
+          <h1 class="headline" aria-label="An ambient forecast instrument for sky and sea">
+            <svg class="hl-video-svg" viewBox="0 0 1000 240" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+              <defs>
+                <mask id="hlTextMask">
+                  <rect x="0" y="0" width="1000" height="240" fill="#000"/>
+                  <text x="500" y="98" text-anchor="middle" class="hl-t">An ambient forecast instrument</text>
+                  <text x="500" y="176" text-anchor="middle" class="hl-t">for <tspan class="hl-em">sky and sea</tspan></text>
+                </mask>
+              </defs>
+              <foreignObject x="0" y="0" width="1000" height="240" mask="url(#hlTextMask)">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="hl-vidfill">
+                  <video autoplay muted loop playsinline preload="auto">
+                    <source src="../Assets/Isobar_Herovideo_WEATHER_001.mp4" type="video/mp4">
+                  </video>
+                </div>
+              </foreignObject>
+            </svg>
+          </h1>
           <!-- lightbar hidden for now — kept for later reuse
           <div class="bar-wrap"><div class="lightbar" aria-hidden="true"></div></div>
           -->
