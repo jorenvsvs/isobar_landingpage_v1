@@ -136,8 +136,8 @@
   .hl-video-svg .hl-t{ font-family:"Faustina",Georgia,serif; font-weight:300; font-size:72px; letter-spacing:-1px; fill:#fff; }
   .hl-video-svg .hl-em{ font-style:italic; font-weight:400; }
   .hl-vidfill{ width:1120px; height:120px; position:relative; overflow:hidden; }
-  /* video rendered at ~background scale, centred, cropped by the letters + shifted 200px down */
-  .hl-vidfill video{ position:absolute; left:50%; top:50%; width:1440px; height:810px; transform:translate(-50%,-50%) translateY(300px); object-fit:cover; filter:brightness(.88) contrast(1.05); }
+  /* dense isobar contour field revealed through the letters */
+  .hl-vidfill canvas{ display:block; width:100%; height:100%; }
   @media (max-width:560px){
     .headline{ font-size:clamp(2rem,8.5vw,3rem); }
     .headline .l1{ white-space:normal; }
@@ -272,9 +272,7 @@
               </defs>
               <foreignObject x="0" y="0" width="1120" height="120" mask="url(#hlTextMask)">
                 <div xmlns="http://www.w3.org/1999/xhtml" class="hl-vidfill">
-                  <video autoplay muted loop playsinline preload="auto">
-                    <source src="../Assets/Isobar_Herovideo_WEATHER_002.mp4" type="video/mp4">
-                  </video>
+                  <canvas class="hl-isobar" width="1120" height="120"></canvas>
                 </div>
               </foreignObject>
             </svg>
@@ -524,6 +522,62 @@
 
     function animate(){time+=animSpeed;draw();requestAnimationFrame(animate);}
     animate();
+  })();
+  </script>
+
+  <script>
+  // ── DENSE ISOBAR FIELD revealed through the headline letters ──
+  (function () {
+    const canvas = document.querySelector('.hl-isobar');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    class N {
+      constructor(){
+        this.perm=new Array(512); this.gradP=new Array(512);
+        const p=new Uint8Array(256);
+        for(let i=0;i<256;i++)p[i]=i;
+        for(let i=255;i>0;i--){const n=Math.floor((i+1)*Math.random());const q=p[i];p[i]=p[n];p[n]=q;}
+        for(let i=0;i<512;i++)this.perm[i]=p[i&255];
+        const g3=[[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],[0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]];
+        for(let i=0;i<512;i++)this.gradP[i]=g3[this.perm[i]%12];
+      }
+      dot(g,x,y,z){return g[0]*x+g[1]*y+g[2]*z;}
+      lerp(t,a,b){return a+t*(b-a);}
+      noise(x,y,z){
+        const X=Math.floor(x)&255,Y=Math.floor(y)&255,Z=Math.floor(z)&255;
+        x-=Math.floor(x);y-=Math.floor(y);z-=Math.floor(z);
+        const u=x*x*x*(x*(x*6-15)+10),v=y*y*y*(y*(y*6-15)+10),w=z*z*z*(z*(z*6-15)+10);
+        const A=this.perm[X]+Y,AA=this.perm[A]+Z,AB=this.perm[A+1]+Z,B=this.perm[X+1]+Y,BA=this.perm[B]+Z,BB=this.perm[B+1]+Z;
+        return this.lerp(w,this.lerp(v,this.lerp(u,this.dot(this.gradP[AA],x,y,z),this.dot(this.gradP[BA],x-1,y,z)),this.lerp(u,this.dot(this.gradP[AB],x,y-1,z),this.dot(this.gradP[BB],x-1,y-1,z))),this.lerp(v,this.lerp(u,this.dot(this.gradP[AA+1],x,y,z-1),this.dot(this.gradP[BA+1],x-1,y,z-1)),this.lerp(u,this.dot(this.gradP[AB+1],x,y-1,z-1),this.dot(this.gradP[BB+1],x-1,y-1,z-1))));
+      }
+    }
+    const noise = new N();
+    let time = 0;
+    // dense + thick: higher noiseScale packs the contours, more levels, fat bone lines
+    const noiseScale=0.011, animSpeed=0.0006, levels=54, smooth=5, lineW=3.0, minV=-0.55, maxV=0.55;
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle='rgba(11,11,11,0.5)'; ctx.fillRect(0,0,W,H);
+      const gw=Math.ceil(W/smooth), gh=Math.ceil(H/smooth), vals=[];
+      for(let y=0;y<=gh;y++){vals[y]=[];for(let x=0;x<=gw;x++)vals[y][x]=noise.noise(x*smooth*noiseScale,y*smooth*noiseScale,time);}
+      const step=(maxV-minV)/(levels-1);
+      ctx.lineWidth=lineW; ctx.strokeStyle='#DDD5C4'; ctx.lineCap='round'; ctx.beginPath();
+      for(let l=0;l<levels;l++){
+        const lv=minV+step*l;
+        for(let y=0;y<gh;y++)for(let x=0;x<gw;x++){
+          const a=vals[y][x],b=vals[y][x+1],c=vals[y+1][x],d=vals[y+1][x+1],s=[];
+          if((a<lv)!==(b<lv))s.push([(x+(lv-a)/(b-a))*smooth,y*smooth]);
+          if((b<lv)!==(d<lv))s.push([(x+1)*smooth,(y+(lv-b)/(d-b))*smooth]);
+          if((c<lv)!==(d<lv))s.push([(x+(lv-c)/(d-c))*smooth,(y+1)*smooth]);
+          if((a<lv)!==(c<lv))s.push([x*smooth,(y+(lv-a)/(c-a))*smooth]);
+          if(s.length===2){ctx.moveTo(s[0][0],s[0][1]);ctx.lineTo(s[1][0],s[1][1]);}
+        }
+      }
+      ctx.stroke();
+    }
+    function loop(){time+=animSpeed;draw();requestAnimationFrame(loop);}
+    loop();
   })();
   </script>
 
