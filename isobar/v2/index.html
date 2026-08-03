@@ -128,6 +128,7 @@
   .headline .l1{ white-space:nowrap; }
   .headline em{ font-style:italic; font-weight:400; }
   /* ISOBAR wordmark logo above the headline */
+  .hero-wordmark{ display:block; text-align:center; font-size:.82rem; letter-spacing:.42em; text-transform:uppercase; color:var(--ink); font-weight:500; margin:0 auto clamp(22px,3vw,36px); padding-left:.42em; }
   .hero-logo{ display:block; width:clamp(200px,30vw,300px); height:auto; margin:0 auto clamp(22px,3vw,36px); }
   .hero-logo mask rect, .hero-logo mask path{ fill:#fff; }
   .logo-fill{ width:626.36px; height:89.49px; position:relative; overflow:hidden; }
@@ -256,7 +257,8 @@
       </div>
       <div class="hero-inner">
         <div class="hero-top">
-          <svg class="hero-logo" viewBox="0 0 626.36 89.49" role="img" aria-label="ISOBAR" xmlns="http://www.w3.org/2000/svg">
+          <span class="hero-wordmark">Isobar</span>
+          <svg class="hero-logo" style="display:none" viewBox="0 0 626.36 89.49" role="img" aria-label="ISOBAR" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <mask id="logoMask">
                 <rect y="3.36" width="16.79" height="85.21" rx="2.64" ry="2.64"/>
@@ -542,7 +544,7 @@
   // ── DENSE ISOBAR FIELD over the video, revealed through the logo ──
   (function () {
     const canvas = document.querySelector('.logo-isobar');
-    if (!canvas) return;
+    if (!canvas || !canvas.getClientRects().length) return;
     const ctx = canvas.getContext('2d');
     const W = canvas.width, H = canvas.height;
     class N {
