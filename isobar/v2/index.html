@@ -568,13 +568,15 @@
     const noise = new N();
     let time = 0;
     // dense + thick: higher noiseScale packs the contours, more levels, fat bone lines
-    const noiseScale=0.0055, animSpeed=0.0006, levels=44, smooth=5, lineW=2.8, minV=-0.8, maxV=0.8;
+    const noiseScale=0.0055, animSpeed=0.0006, levels=22, smooth=5, lineW=5.6, minV=-0.8, maxV=0.8;
+    const driftX=6, driftY=2;
     function draw(){
       ctx.clearRect(0,0,W,H);
       ctx.globalCompositeOperation='source-over';
       ctx.fillStyle='#f2efe8'; ctx.fillRect(0,0,W,H);
       const gw=Math.ceil(W/smooth), gh=Math.ceil(H/smooth), vals=[];
-      for(let y=0;y<=gh;y++){vals[y]=[];for(let x=0;x<=gw;x++)vals[y][x]=noise.noise(x*smooth*noiseScale,y*smooth*noiseScale,time);}
+      const offX=time*driftX, offY=time*driftY;
+      for(let y=0;y<=gh;y++){vals[y]=[];for(let x=0;x<=gw;x++)vals[y][x]=noise.noise(x*smooth*noiseScale+offX,y*smooth*noiseScale+offY,time);}
       const step=(maxV-minV)/(levels-1);
       ctx.globalCompositeOperation='destination-out'; ctx.lineWidth=lineW; ctx.strokeStyle='#000'; ctx.lineCap='round'; ctx.beginPath();
       for(let l=0;l<levels;l++){
