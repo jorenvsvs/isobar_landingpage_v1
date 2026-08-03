@@ -131,7 +131,6 @@
   .hero-logo{ display:block; width:clamp(200px,30vw,300px); height:auto; margin:0 auto clamp(22px,3vw,36px); }
   .hero-logo mask rect, .hero-logo mask path{ fill:#fff; }
   .logo-fill{ width:626.36px; height:89.49px; position:relative; overflow:hidden; }
-  .logo-fill video{ position:absolute; left:50%; top:50%; width:1400px; height:788px; transform:translate(-50%,-50%); object-fit:cover; }
   .logo-fill canvas{ position:absolute; inset:0; width:100%; height:100%; }
 
   /* video-masked headline: SVG text masks a darker, offset copy of the hero video */
@@ -270,9 +269,6 @@
             </defs>
             <foreignObject x="0" y="0" width="626.36" height="89.49" mask="url(#logoMask)">
               <div xmlns="http://www.w3.org/1999/xhtml" class="logo-fill">
-                <video autoplay muted loop playsinline preload="auto">
-                  <source src="../Assets/Isobar_Herovideo_WEATHER_002.mp4" type="video/mp4">
-                </video>
                 <canvas class="logo-isobar" width="626" height="90"></canvas>
               </div>
             </foreignObject>
@@ -572,13 +568,13 @@
     const noise = new N();
     let time = 0;
     // dense + thick: higher noiseScale packs the contours, more levels, fat bone lines
-    const noiseScale=0.011, animSpeed=0.0006, levels=54, smooth=5, lineW=3.0, minV=-0.55, maxV=0.55;
+    const noiseScale=0.007, animSpeed=0.0006, levels=22, smooth=5, lineW=3.2, minV=-0.5, maxV=0.5;
     function draw(){
       ctx.clearRect(0,0,W,H);
       const gw=Math.ceil(W/smooth), gh=Math.ceil(H/smooth), vals=[];
       for(let y=0;y<=gh;y++){vals[y]=[];for(let x=0;x<=gw;x++)vals[y][x]=noise.noise(x*smooth*noiseScale,y*smooth*noiseScale,time);}
       const step=(maxV-minV)/(levels-1);
-      ctx.lineWidth=lineW; ctx.strokeStyle='#DDD5C4'; ctx.lineCap='round'; ctx.beginPath();
+      ctx.lineWidth=lineW; ctx.strokeStyle='#f2efe8'; ctx.lineCap='round'; ctx.beginPath();
       for(let l=0;l<levels;l++){
         const lv=minV+step*l;
         for(let y=0;y<gh;y++)for(let x=0;x<gw;x++){
