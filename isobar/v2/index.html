@@ -116,7 +116,7 @@
   /* legibility scrim: darken top (under the sticky header) and lower third */
   .hero-media::after{
     content:""; position:absolute; inset:0; pointer-events:none;
-    background:linear-gradient(180deg,rgba(7,7,7,.58) 0%,rgba(7,7,7,.14) 26%,rgba(7,7,7,.22) 62%,rgba(7,7,7,.62) 100%);
+    background:linear-gradient(180deg,rgba(7,7,7,.55) 0%,rgba(7,7,7,.16) 22%,rgba(7,7,7,.07) 42%,rgba(7,7,7,0) 55%,rgba(7,7,7,0) 100%);
   }
   .hero-inner{ position:relative; display:flex; flex-direction:column; align-items:center; width:100%; }
   .headline{
@@ -129,10 +129,10 @@
   .headline em{ font-style:italic; font-weight:400; }
 
   /* video-masked headline: SVG text masks a darker, offset copy of the hero video */
-  .hl-video-svg{ display:block; width:min(1000px,94vw); height:auto; margin:0 auto; overflow:visible; }
+  .hl-video-svg{ display:block; width:min(1080px,96vw); height:auto; margin:0 auto; overflow:visible; }
   .hl-video-svg .hl-t{ font-family:"Faustina",Georgia,serif; font-weight:300; font-size:80px; letter-spacing:-1px; fill:#fff; }
   .hl-video-svg .hl-em{ font-style:italic; font-weight:400; }
-  .hl-vidfill{ width:1000px; height:230px; position:relative; overflow:hidden; }
+  .hl-vidfill{ width:1080px; height:230px; position:relative; overflow:hidden; }
   /* video rendered at ~background scale, centred, cropped by the letters + shifted 200px down */
   .hl-vidfill video{ position:absolute; left:50%; top:50%; width:1440px; height:810px; transform:translate(-50%,-50%) translateY(200px); object-fit:cover; filter:brightness(.5) contrast(1.2); }
   @media (max-width:560px){
@@ -252,15 +252,15 @@
       <div class="hero-inner">
         <div class="hero-top">
           <h1 class="headline" aria-label="An ambient forecast instrument for sky and sea">
-            <svg class="hl-video-svg" viewBox="0 0 1000 230" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+            <svg class="hl-video-svg" viewBox="0 0 1080 230" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
               <defs>
                 <mask id="hlTextMask">
-                  <rect x="0" y="0" width="1000" height="230" fill="#000"/>
-                  <text x="500" y="92" text-anchor="middle" class="hl-t">An ambient forecast instrument</text>
-                  <text x="500" y="180" text-anchor="middle" class="hl-t">for <tspan class="hl-em">sky and sea</tspan></text>
+                  <rect x="0" y="0" width="1080" height="230" fill="#000"/>
+                  <text x="540" y="92" text-anchor="middle" class="hl-t">An ambient forecast instrument</text>
+                  <text x="540" y="180" text-anchor="middle" class="hl-t">for <tspan class="hl-em">sky and sea</tspan></text>
                 </mask>
               </defs>
-              <foreignObject x="0" y="0" width="1000" height="230" mask="url(#hlTextMask)">
+              <foreignObject x="0" y="0" width="1080" height="230" mask="url(#hlTextMask)">
                 <div xmlns="http://www.w3.org/1999/xhtml" class="hl-vidfill">
                   <video autoplay muted loop playsinline preload="auto">
                     <source src="../Assets/Isobar_Herovideo_WEATHER_002.mp4" type="video/mp4">
