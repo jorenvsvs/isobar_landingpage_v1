@@ -568,7 +568,7 @@
     const noise = new N();
     let time = 0;
     // dense + thick: higher noiseScale packs the contours, more levels, fat bone lines
-    const noiseScale=0.0055, animSpeed=0.0006, levels=13, smooth=5, lineW=14, minV=-0.8, maxV=0.8;
+    const noiseScale=0.011, animSpeed=0.0006, levels=13, smooth=4, lineW=14, minV=-0.8, maxV=0.8;
     function draw(){
       ctx.clearRect(0,0,W,H);
       const gw=Math.ceil(W/smooth), gh=Math.ceil(H/smooth), vals=[];
