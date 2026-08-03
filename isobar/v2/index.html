@@ -571,10 +571,12 @@
     const noiseScale=0.0055, animSpeed=0.0006, levels=44, smooth=5, lineW=2.8, minV=-0.8, maxV=0.8;
     function draw(){
       ctx.clearRect(0,0,W,H);
+      ctx.globalCompositeOperation='source-over';
+      ctx.fillStyle='#f2efe8'; ctx.fillRect(0,0,W,H);
       const gw=Math.ceil(W/smooth), gh=Math.ceil(H/smooth), vals=[];
       for(let y=0;y<=gh;y++){vals[y]=[];for(let x=0;x<=gw;x++)vals[y][x]=noise.noise(x*smooth*noiseScale,y*smooth*noiseScale,time);}
       const step=(maxV-minV)/(levels-1);
-      ctx.lineWidth=lineW; ctx.strokeStyle='#f2efe8'; ctx.lineCap='round'; ctx.beginPath();
+      ctx.globalCompositeOperation='destination-out'; ctx.lineWidth=lineW; ctx.strokeStyle='#000'; ctx.lineCap='round'; ctx.beginPath();
       for(let l=0;l<levels;l++){
         const lv=minV+step*l;
         for(let y=0;y<gh;y++)for(let x=0;x<gw;x++){
