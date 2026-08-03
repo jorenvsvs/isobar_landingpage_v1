@@ -569,7 +569,7 @@
     let time = 0;
     // dense + thick: higher noiseScale packs the contours, more levels, fat bone lines
     const noiseScale=0.0055, animSpeed=0.0006, levels=22, smooth=5, lineW=5.6, minV=-0.8, maxV=0.8;
-    const driftX=6, driftY=2;
+    const driftX=1.5, driftY=0.5;
     function draw(){
       ctx.clearRect(0,0,W,H);
       ctx.globalCompositeOperation='source-over';
