@@ -122,8 +122,9 @@
   .hero-inner{ position:relative; display:flex; flex-direction:column; align-items:center; width:100%; }
   .headline{
     font-family:"Faustina",Georgia,serif; font-weight:300;
-    font-size:clamp(2.1rem,5.2vw,4.5rem); line-height:1.04;
-    letter-spacing:-.015em; max-width:none; color:#808080;
+    font-size:clamp(1.7rem,4.2vw,3.2rem); line-height:1.06;
+    letter-spacing:-.01em; max-width:none; color:#f2efe8;
+    mix-blend-mode:overlay;
   }
   .headline .l1, .headline .l2{ display:block; }
   .headline .l1{ white-space:nowrap; }
@@ -285,23 +286,7 @@
               </div>
             </foreignObject>
           </svg>
-          <h1 class="headline" aria-label="Your ambient forecast instrument">
-            <svg class="hl-video-svg" viewBox="0 0 1120 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
-              <defs>
-                <mask id="hlTextMask">
-                  <rect x="0" y="0" width="1120" height="120" fill="#000"/>
-                  <text x="560" y="82" text-anchor="middle" class="hl-t">Your ambient forecast instrument</text>
-                </mask>
-              </defs>
-              <foreignObject x="0" y="0" width="1120" height="120" mask="url(#hlTextMask)">
-                <div xmlns="http://www.w3.org/1999/xhtml" class="hl-vidfill">
-                  <video autoplay muted loop playsinline preload="auto">
-                    <source src="../Assets/Isobar_Herovideo_WEATHER_002.mp4" type="video/mp4">
-                  </video>
-                </div>
-              </foreignObject>
-            </svg>
-          </h1>
+          <h1 class="headline">Your ambient forecast instrument</h1>
           <!-- lightbar hidden for now — kept for later reuse
           <div class="bar-wrap"><div class="lightbar" aria-hidden="true"></div></div>
           -->
