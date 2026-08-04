@@ -112,7 +112,8 @@
     -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 100px),transparent 100%);
             mask-image:linear-gradient(to bottom,#000 calc(100% - 100px),transparent 100%);
   }
-  .hero-media video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .hero-media .mode-vid{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; opacity:0; transition:opacity .8s ease; }
+  .hero-media .mode-vid.active{ opacity:1; }
   /* legibility scrim: darken top (under the sticky header) and lower third */
   .hero-media::after{
     content:""; position:absolute; inset:0; pointer-events:none;
@@ -158,6 +159,13 @@
   .philosophy{ margin-top:clamp(20px,2.4vw,32px); font-size:clamp(.72rem,1.1vw,.86rem); letter-spacing:.34em; text-transform:uppercase; color:#1f1d19; }
   .hero-top .philosophy{ color:#f2efe8; }
   .hero-cta .philosophy{ color:var(--ink-mute); }
+
+  /* forecast mode switcher — subtle segmented control */
+  .mode-switch{ position:relative; display:inline-flex; margin-top:clamp(22px,2.6vw,32px); padding:5px; border:1px solid var(--line); border-radius:100px; background:rgba(221,213,196,.03); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+  .mode-thumb{ position:absolute; left:0; top:0; z-index:0; width:0; height:0; border-radius:100px; background:rgba(221,213,196,.13); box-shadow:0 1px 4px rgba(0,0,0,.18); transition:transform .4s cubic-bezier(.4,0,.2,1), width .4s cubic-bezier(.4,0,.2,1); pointer-events:none; }
+  .mode-btn{ position:relative; z-index:1; background:none; border:0; cursor:pointer; font-family:"Space Grotesk",sans-serif; font-weight:500; font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-mute); padding:9px 17px; border-radius:100px; transition:color .3s; -webkit-tap-highlight-color:transparent; }
+  .mode-btn:hover{ color:var(--ink-soft); }
+  .mode-btn.active{ color:var(--ink); }
 
   /* hero vertical nudges — top cluster up, CTA down */
   .hero-top{ transform:translateY(-150px); }
@@ -251,9 +259,11 @@
     <!-- ══ HERO — what it is ══ -->
     <section class="hero">
       <div class="hero-media" aria-hidden="true">
-        <video autoplay muted loop playsinline preload="auto">
-          <source src="../Assets/Isobar_Herovideo_WEATHER_002.mp4" type="video/mp4">
-        </video>
+        <video class="mode-vid active" data-mode="weather" autoplay muted loop playsinline preload="auto"><source src="../Assets/Isobar_Herovideo_WEATHER_002.mp4" type="video/mp4"></video>
+        <video class="mode-vid" data-mode="wind" autoplay muted loop playsinline preload="auto"><source src="../Assets/Isobar_Herovideo_WIND_001.mp4" type="video/mp4"></video>
+        <video class="mode-vid" data-mode="swell" autoplay muted loop playsinline preload="auto"><source src="../Assets/Isobar_Herovideo_SWELL_001.mp4" type="video/mp4"></video>
+        <!-- TIDE: placeholder reuses SWELL until a real tide clip exists -->
+        <video class="mode-vid" data-mode="tide" autoplay muted loop playsinline preload="auto"><source src="../Assets/Isobar_Herovideo_SWELL_001.mp4" type="video/mp4"></video>
       </div>
       <div class="hero-inner">
         <div class="hero-top">
@@ -295,7 +305,13 @@
           <!-- lightbar hidden for now — kept for later reuse
           <div class="bar-wrap"><div class="lightbar" aria-hidden="true"></div></div>
           -->
-          <p class="philosophy">Weather,&nbsp;wind,&nbsp;swell&nbsp;and&nbsp;tide.</p>
+          <div class="mode-switch" role="tablist" aria-label="Forecast mode">
+            <span class="mode-thumb" aria-hidden="true"></span>
+            <button class="mode-btn active" data-mode="weather" role="tab" aria-selected="true">Weather</button>
+            <button class="mode-btn" data-mode="wind" role="tab" aria-selected="false">Wind</button>
+            <button class="mode-btn" data-mode="swell" role="tab" aria-selected="false">Swell</button>
+            <button class="mode-btn" data-mode="tide" role="tab" aria-selected="false">Tide</button>
+          </div>
         </div>
         <div class="hero-cta">
           <p class="philosophy">No&nbsp;app.&nbsp;&nbsp;No&nbsp;screen.&nbsp;&nbsp;No&nbsp;notifications.</p>
@@ -596,6 +612,37 @@
     }
     function loop(){time+=animSpeed;draw();requestAnimationFrame(loop);}
     loop();
+  })();
+  </script>
+
+  <script>
+  // ── FORECAST MODE SWITCHER — segmented control + background crossfade ──
+  (function () {
+    const sw = document.querySelector('.mode-switch');
+    if (!sw) return;
+    const btns = [...sw.querySelectorAll('.mode-btn')];
+    const thumb = sw.querySelector('.mode-thumb');
+    const vids = {};
+    document.querySelectorAll('.hero-media .mode-vid').forEach(v => { vids[v.dataset.mode] = v; v.play().catch(() => {}); });
+    let active = 'weather';
+    function moveThumb(btn){
+      thumb.style.width = btn.offsetWidth + 'px';
+      thumb.style.height = btn.offsetHeight + 'px';
+      thumb.style.transform = `translate(${btn.offsetLeft}px, ${btn.offsetTop}px)`;
+    }
+    function select(mode){
+      if (mode === active || !vids[mode]) return;
+      const btn = btns.find(b => b.dataset.mode === mode);
+      btns.forEach(b => { const on = b === btn; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
+      moveThumb(btn);
+      Object.entries(vids).forEach(([k, v]) => v.classList.toggle('active', k === mode));
+      active = mode;
+    }
+    btns.forEach(b => b.addEventListener('click', () => select(b.dataset.mode)));
+    const reposition = () => moveThumb(btns.find(b => b.classList.contains('active')));
+    requestAnimationFrame(reposition);
+    window.addEventListener('resize', reposition);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(reposition); // widths shift once Space Grotesk loads
   })();
   </script>
 
