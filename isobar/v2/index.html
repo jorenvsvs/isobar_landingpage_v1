@@ -625,13 +625,32 @@
       thumb.style.height = (btn.offsetHeight + py * 2) + 'px';
       thumb.style.transform = `translate(${btn.offsetLeft - px}px, ${btn.offsetTop - py}px)`;
     }
+    let fadeTimer = null;
     function select(mode){
       if (mode === active || !vids[mode]) return;
       const btn = btns.find(b => b.dataset.mode === mode);
       btns.forEach(b => { const on = b === btn; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
       moveThumb(btn);
-      Object.entries(vids).forEach(([k, v]) => v.classList.toggle('active', k === mode));
+      const incoming = vids[mode];
       active = mode;
+      // fade the incoming clip IN on top; the outgoing one stays fully opaque
+      // underneath so the composite never dips dark mid-crossfade.
+      const run = () => {
+        Object.values(vids).forEach(v => { v.style.zIndex = v.classList.contains('active') ? '1' : '0'; });
+        incoming.style.zIndex = '2';
+        incoming.classList.add('active');
+        clearTimeout(fadeTimer);
+        fadeTimer = setTimeout(() => {
+          Object.entries(vids).forEach(([k, v]) => {
+            if (k !== mode) v.classList.remove('active');
+            v.style.zIndex = (k === mode) ? '1' : '0';
+          });
+        }, 900);
+      };
+      // only start the fade once the target actually has frames ready
+      incoming.play().catch(() => {});
+      if (incoming.readyState >= 2) run();
+      else incoming.addEventListener('canplay', run, { once: true });
     }
     btns.forEach(b => b.addEventListener('click', () => select(b.dataset.mode)));
     const reposition = () => moveThumb(btns.find(b => b.classList.contains('active')));
