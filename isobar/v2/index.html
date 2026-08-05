@@ -93,9 +93,9 @@
   .emblem{ width:26px; height:auto; display:block; }
   .emblem path{ fill:var(--bone); }
   .brand .divider{ width:1px; height:20px; background:var(--line); }
-  .wordmark{ font-size:.82rem; letter-spacing:.42em; text-transform:uppercase; color:var(--ink); font-weight:500; }
+  .wordmark{ font-family:"Faustina",Georgia,serif; font-size:.9rem; letter-spacing:.42em; text-transform:uppercase; color:var(--ink); font-weight:500; }
   nav{ display:flex; gap:clamp(18px,3vw,38px); }
-  nav a{ font-size:.76rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-mute); text-decoration:none; transition:color .25s; }
+  nav a{ font-family:"Faustina",Georgia,serif; font-size:.86rem; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-mute); text-decoration:none; transition:color .25s; }
   nav a:hover{ color:var(--ink-soft); }
   @media (max-width:600px){ nav{display:none} }
 
@@ -121,7 +121,7 @@
   }
   .hero-inner{ position:relative; display:flex; flex-direction:column; align-items:center; width:100%; }
   .headline{
-    font-family:"Faustina",Georgia,serif; font-weight:300;
+    font-family:"Inter",sans-serif; font-weight:400;
     font-size:clamp(1.7rem,4.2vw,3.2rem); line-height:1.06;
     letter-spacing:-.01em; max-width:none; color:#ecdcc4;
     mix-blend-mode:overlay;
@@ -130,7 +130,7 @@
   .headline .l1{ white-space:nowrap; }
   .headline em{ font-style:italic; font-weight:400; }
   /* ISOBAR wordmark logo above the headline */
-  .hero-wordmark{ display:block; text-align:center; font-size:3.08rem; letter-spacing:.84em; text-transform:uppercase; color:#ecdcc4; font-weight:500; margin:0 auto clamp(22px,3vw,36px); padding-left:.84em; mix-blend-mode:overlay; }
+  .hero-wordmark{ font-family:"Faustina",Georgia,serif; display:block; text-align:center; font-size:3.08rem; letter-spacing:.84em; text-transform:uppercase; color:#ecdcc4; font-weight:500; margin:0 auto clamp(22px,3vw,36px); padding-left:.84em; mix-blend-mode:overlay; }
   .hero-logo{ display:block; width:clamp(200px,30vw,300px); height:auto; margin:0 auto clamp(22px,3vw,36px); }
   .hero-logo mask rect, .hero-logo mask path{ fill:#fff; }
   .logo-fill{ width:626.36px; height:89.49px; position:relative; overflow:hidden; }
