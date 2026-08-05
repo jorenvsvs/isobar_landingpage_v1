@@ -170,7 +170,14 @@
   .mode-btn.active{ color:#f2efe8; }
 
   /* hero vertical nudges — top cluster up, CTA down */
-  .hero-top{ transform:translateY(-150px); }
+  .hero-top{ position:relative; transform:translateY(-150px); }
+  /* soft overlay that darkens the background video behind the header text */
+  .hero-scrim{ position:absolute; inset:-30px -66px; z-index:0; pointer-events:none;
+    -webkit-backdrop-filter:brightness(.5); backdrop-filter:brightness(.5);
+    -webkit-mask-image:radial-gradient(ellipse 72% 84% at 50% 50%, #000 42%, transparent 78%);
+            mask-image:radial-gradient(ellipse 72% 84% at 50% 50%, #000 42%, transparent 78%);
+  }
+  .hero-top > *:not(.hero-scrim){ position:relative; z-index:1; }
   .hero-cta{ margin-top:clamp(36px,5vw,56px); display:flex; flex-direction:column; align-items:center; gap:18px; transform:translateY(300px); }
   .tag{ font-size:.74rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-mute); }
   .btn{
@@ -269,6 +276,7 @@
       </div>
       <div class="hero-inner">
         <div class="hero-top">
+          <div class="hero-scrim" aria-hidden="true"></div>
           <span class="hero-wordmark">Isobar</span>
           <svg class="hero-logo" style="display:none" viewBox="0 0 626.36 89.49" role="img" aria-label="ISOBAR" xmlns="http://www.w3.org/2000/svg">
             <defs>
