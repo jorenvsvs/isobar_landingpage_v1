@@ -162,9 +162,7 @@
   .hero-cta .philosophy{ color:var(--ink-mute); }
 
   /* forecast + live mode switcher — one line, gap between the two groups */
-  .mode-switch{ position:relative; display:inline-flex; align-items:baseline; margin-top:clamp(20px,2.4vw,30px); font-family:"Manrope",sans-serif; font-weight:500; font-size:clamp(.72rem,1.1vw,.86rem); letter-spacing:.3em; text-transform:uppercase; color:#cabfa5; mix-blend-mode:overlay; }
-  .mode-group{ white-space:nowrap; }
-  .mode-gap{ flex:0 0 auto; width:clamp(40px,10vw,100px); }
+  .mode-switch{ position:relative; display:inline-block; font-family:"Manrope",sans-serif; font-weight:500; font-size:clamp(.72rem,1.1vw,.86rem); letter-spacing:.3em; text-transform:uppercase; color:#cabfa5; }
   .mode-thumb{ position:absolute; left:0; top:0; z-index:0; width:0; height:0; border-radius:8px; background:rgba(221,213,196,.09); transition:transform .42s cubic-bezier(.4,0,.2,1), width .42s cubic-bezier(.4,0,.2,1), height .42s cubic-bezier(.4,0,.2,1); pointer-events:none; }
   .mode-btn{ position:relative; z-index:1; background:none; border:0; padding:0; cursor:pointer; font:inherit; letter-spacing:inherit; text-transform:inherit; color:#cabfa5; transition:color .3s; vertical-align:baseline; -webkit-tap-highlight-color:transparent; }
   .mode-btn:hover{ color:#ecdcc4; }
@@ -292,16 +290,9 @@
           <!-- lightbar hidden for now — kept for later reuse
           <div class="bar-wrap"><div class="lightbar" aria-hidden="true"></div></div>
           -->
-          <div class="mode-switch" role="tablist" aria-label="Forecast and live modes">
-            <span class="mode-thumb" aria-hidden="true"></span>
-            <span class="mode-group"><button class="mode-btn active" data-mode="weather" role="tab" aria-selected="true">Weather</button>, <button class="mode-btn" data-mode="wind" role="tab" aria-selected="false">wind</button>, <button class="mode-btn" data-mode="swell" role="tab" aria-selected="false">swell</button></span>
-            <span class="mode-gap" aria-hidden="true"></span>
-            <span class="mode-group"><button class="mode-btn" data-mode="live-tide" role="tab" aria-selected="false">Live tide</button>, <button class="mode-btn" data-mode="live-wind" role="tab" aria-selected="false">live wind</button></span>
-          </div>
         </div>
         <div class="hero-cta">
-          <p class="philosophy">No&nbsp;app.&nbsp;&nbsp;No&nbsp;screen.&nbsp;&nbsp;No&nbsp;notifications.</p>
-          <span class="tag">Early 2027 · Limited run</span>
+          <div class="mode-switch" role="tablist" aria-label="Forecast and live modes"><span class="mode-thumb" aria-hidden="true"></span><button class="mode-btn active" data-mode="weather" role="tab" aria-selected="true">Weather</button>, <button class="mode-btn" data-mode="wind" role="tab" aria-selected="false">wind</button>, <button class="mode-btn" data-mode="swell" role="tab" aria-selected="false">swell</button>, <button class="mode-btn" data-mode="live-tide" role="tab" aria-selected="false">live tide</button>, <button class="mode-btn" data-mode="live-wind" role="tab" aria-selected="false">live wind</button></div>
           <a class="btn" href="#waitlist">Join the waitlist</a>
         </div>
       </div>
