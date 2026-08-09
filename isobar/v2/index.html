@@ -195,6 +195,45 @@
   .detail-duo{ margin-top:clamp(14px,1.8vw,22px); display:grid; grid-template-columns:1fr 1fr; gap:clamp(14px,1.8vw,22px); }
   .detail-duo img{ width:100%; aspect-ratio:16/10; object-fit:cover; border:1px solid var(--line); border-radius:14px; display:block; }
   @media(max-width:640px){ .detail-duo{ grid-template-columns:1fr; } }
+
+  /* ── full-bleed (edge-to-edge) images ── */
+  .media.fullbleed{ position:relative; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw; width:100vw; max-width:100vw; border:none; border-radius:0; aspect-ratio:2.6/1; }
+
+  /* ── ported from V1: details cards ── */
+  .details-cards{ margin-top:clamp(34px,5vw,60px); display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .detail-card{ background:rgba(221,213,196,.025); padding-bottom:1.75rem; }
+  .detail-card-img{ overflow:hidden; aspect-ratio:3/2; }
+  .detail-card-img img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .detail-card h4{ font-family:"Faustina",Georgia,serif; font-weight:500; font-size:1.05rem; color:var(--ink); margin:1.25rem 1.5rem .5rem; }
+  .detail-card p{ font-size:.92rem; line-height:1.6; color:var(--ink-soft); padding:0 1.5rem; margin:0; }
+  @media(max-width:820px){ .details-cards{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:460px){ .details-cards{ grid-template-columns:1fr; } }
+
+  /* ── ported from V1: models (full-width image + size cards) ── */
+  .models-fw{ margin-top:clamp(34px,5vw,60px); width:100%; aspect-ratio:4/1; overflow:hidden; }
+  .models-fw img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .models-cards{ margin-top:clamp(28px,3.5vw,44px); display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .model-cardv1{ padding:clamp(24px,3vw,34px) clamp(20px,2.4vw,28px); display:flex; flex-direction:column; gap:.5rem; border-right:1px solid var(--line); background:rgba(221,213,196,.02); }
+  .model-cardv1:last-child{ border-right:none; }
+  .model-type{ font-family:"Manrope",sans-serif; font-size:.76rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-mute); }
+  .model-name{ font-family:"Faustina",Georgia,serif; font-size:1.55rem; font-weight:400; color:var(--ink); letter-spacing:.01em; }
+  .model-bar{ margin:.4rem 0 .7rem; }
+  .model-bar svg{ width:100%; height:auto; display:block; }
+  .model-days{ font-family:"Manrope",sans-serif; font-size:.8rem; letter-spacing:.03em; color:var(--ink-mute); margin-top:auto; }
+  .model-price{ font-family:"Faustina",Georgia,serif; font-size:1.2rem; font-weight:300; color:var(--ink); margin-top:.4rem; }
+  @media(max-width:720px){ .models-cards{ grid-template-columns:1fr; } .model-cardv1{ border-right:none; border-bottom:1px solid var(--line); } .model-cardv1:last-child{ border-bottom:none; } }
+
+  /* ── ported from V1: forecast + live mode-icon legend ── */
+  .icon-strip{ margin-top:clamp(34px,5vw,56px); display:flex; justify-content:center; }
+  .icon-strip-inner{ display:flex; align-items:flex-start; gap:clamp(2rem,5vw,3.5rem); }
+  .icon-group{ display:flex; flex-direction:column; align-items:center; }
+  .icon-group-label{ font-family:"Manrope",sans-serif; font-size:.62rem; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-mute); margin:0 0 1.25rem; }
+  .icon-group-items{ display:flex; gap:clamp(1.25rem,3vw,2rem); align-items:flex-start; }
+  .icon-item{ display:flex; flex-direction:column; align-items:center; gap:.65rem; }
+  .icon-item img{ width:44px; height:44px; opacity:.82; transition:opacity .2s; }
+  .icon-item:hover img{ opacity:1; }
+  .icon-item span{ font-family:"Manrope",sans-serif; font-size:.62rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-mute); }
+  .icon-strip-divider{ width:1px; background:var(--line); align-self:stretch; margin-top:1.35rem; }
   .detail-grid{ margin-top:clamp(28px,3.5vw,44px); display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:clamp(20px,2.6vw,32px); }
   .detail{ display:flex; flex-direction:column; gap:8px; padding-top:18px; border-top:1px solid var(--line); }
   .detail .idx{ font-size:.72rem; letter-spacing:.2em; color:var(--ink-mute); }
@@ -320,7 +359,7 @@
         <p class="eyebrow">01 — The idea</p>
         <h2 class="h2">An instrument that knows what the days will hold.</h2>
         <p class="lede">No app to open. No screen to read. No notification to dismiss. ISOBAR sits on your wall and speaks the weather in colour — something you feel across the room rather than something you check.</p>
-        <div class="media filled"><img src="../Assets/Isobar_Feature_stills_Features_Close_I_V01_0000.jpg" alt="ISOBAR at home against a coastal view"></div>
+        <div class="media filled fullbleed"><img src="../Assets/Isobar_Feature_stills_Features_Close_I_V01_0000.jpg" alt="ISOBAR at home against a coastal view"></div>
       </div>
     </section>
 
@@ -345,6 +384,26 @@
             <div class="scale-head"><span class="scale-name">Swell</span></div>
             <div class="band swell" aria-hidden="true"></div>
             <div class="labels"><span>Flat</span><span>Building</span><span>Heavy</span></div>
+          </div>
+        </div>
+        <div class="icon-strip">
+          <div class="icon-strip-inner">
+            <div class="icon-group">
+              <p class="icon-group-label">Forecast</p>
+              <div class="icon-group-items">
+                <div class="icon-item"><img src="../Assets/ISOBAR_icon_Wind_forecast_icon.svg" alt="Wind forecast"><span>Wind</span></div>
+                <div class="icon-item"><img src="../Assets/ISOBAR_icon_Swell_forecast_icon.svg" alt="Swell forecast"><span>Swell</span></div>
+                <div class="icon-item"><img src="../Assets/ISOBAR_icon_Weather_forecast_icon.svg" alt="Weather forecast"><span>Weather</span></div>
+              </div>
+            </div>
+            <div class="icon-strip-divider"></div>
+            <div class="icon-group">
+              <p class="icon-group-label">Live data</p>
+              <div class="icon-group-items">
+                <div class="icon-item"><img src="../Assets/ISOBAR_icon_Live_wind_icon.svg" alt="Live wind"><span>Wind</span></div>
+                <div class="icon-item"><img src="../Assets/ISOBAR_icon_Live_tide_icon.svg" alt="Live tide"><span>Tide</span></div>
+              </div>
+            </div>
           </div>
         </div>
         <p class="note">Switch modes with a simple tap.</p>
@@ -372,7 +431,7 @@
         <p class="eyebrow">04 — The object</p>
         <h2 class="h2">Hand-finished, built to live with.</h2>
         <p class="lede">Solid timber. Touch to switch modes. Wall-mountable. It dims itself to the room, so it never asks for attention it doesn't need.</p>
-        <div class="media filled"><img src="../Assets/Isobar_Feature_stills_Features_Close_F_V01_0000.jpg" alt="ISOBAR on its stand, front on"></div>
+        <div class="media filled fullbleed"><img src="../Assets/Isobar_Feature_stills_Features_Close_F_V01_0000.jpg" alt="ISOBAR on its stand, front on"></div>
       </div>
     </section>
 
@@ -382,18 +441,27 @@
         <p class="eyebrow">05 — The details</p>
         <h2 class="h2">Considered, down to the edge.</h2>
         <p class="lede">Every part of ISOBAR earns its place — nothing to read, nothing to configure, nothing that asks for attention it doesn't need.</p>
-        <div class="detail-hero"><img src="../Assets/Isobar_Feature_stills_Features_Close_C_V01_0000.jpg" alt="Engraved ISOBAR mark on the timber edge"></div>
-        <div class="detail-duo">
-          <img src="../Assets/Isobar_Feature_stills_Features_Close_D_V01_0000.jpg" alt="ISOBAR rounded end in solid timber">
-          <img src="../Assets/Isobar_Feature_stills_Features_Close_E_V01_0000.jpg" alt="ISOBAR light gradient close-up">
-        </div>
-        <div class="detail-grid">
-          <div class="detail"><span class="idx">01</span><h4>Day, midday &amp; midnight markers</h4><p>Fine indicators engraved into the face, so you can read where you are across the days at a single glance.</p></div>
-          <div class="detail"><span class="idx">02</span><h4>Touch to switch modes</h4><p>A touch of the surface cycles through weather, wind, swell and live. No buttons, no menus.</p></div>
-          <div class="detail"><span class="idx">03</span><h4>12V power connection</h4><p>A single discreet 12V input on the back — the same whether it's wall-mounted or on its stand.</p></div>
-          <div class="detail"><span class="idx">04</span><h4>Engraved ISOBAR mark</h4><p>The wordmark quietly scored along the top edge — the only branding on the piece.</p></div>
-          <div class="detail"><span class="idx">05</span><h4>Adapts to the room</h4><p>An ambient sensor dims the light from bright afternoons down to the dark of night.</p></div>
-          <div class="detail"><span class="idx">06</span><h4>Solid timber</h4><p>Each ISOBAR is cut and hand-finished from a single piece of timber.</p></div>
+        <div class="details-cards">
+          <div class="detail-card">
+            <div class="detail-card-img"><img src="../Assets/Isobar_Feature_stills_Features_Close_A_V01_0000.jpg" alt="Day marker notches on the LED channel" loading="lazy"></div>
+            <h4>Day markers</h4>
+            <p>Engraved tick marks divide the gradient into days, with noon and midnight clearly marked. A single flashing LED shows the current hour, so you can pinpoint exactly where you are in the forecast at a glance.</p>
+          </div>
+          <div class="detail-card">
+            <div class="detail-card-img"><img src="../Assets/Isobar_Feature_stills_Features_Close_D_V01_0000.jpg" alt="Engraved touch surface" loading="lazy"></div>
+            <h4>Mode switch</h4>
+            <p>The engraved ISOBAR badge on the top surface is a capacitive touch button — one press cycles through forecast modes and live views. An ambient light sensor on the same face dims the light to the room, bright by day, soft at night.</p>
+          </div>
+          <div class="detail-card">
+            <div class="detail-card-img"><img src="../Assets/Isobar_Feature_stills_Features_Close_H_V01_0000.jpg" alt="Wall mount and power connection" loading="lazy"></div>
+            <h4>Installation</h4>
+            <p>Keyhole mounts on the back sit flush to the wall, with channels that hide the cable. Hang it horizontally for a multi-day forecast, or turn it vertical for live wind or tide — the display adapts automatically.</p>
+          </div>
+          <div class="detail-card">
+            <div class="detail-card-img"><img src="../Assets/Isobar_Feature_stills_Features_Close_E_V01_0000.jpg" alt="Timber grain and brass badge" loading="lazy"></div>
+            <h4>Solid timber</h4>
+            <p>Each enclosure is hand-finished from responsibly sourced solid timber. The grain, tone and character vary from piece to piece — no two are identical.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -404,7 +472,7 @@
         <p class="eyebrow">06 — Sustainability</p>
         <h2 class="h2">Made to last, and to give back.</h2>
         <p class="lede">Every ISOBAR is cut from FSC-certified timber — responsibly grown and fully traceable. And for every instrument we sell, we plant a tree.</p>
-        <div class="media filled"><img src="../Assets/Isobar_Feature_stills_Features_Close_H_V01_0000.jpg" alt="ISOBAR hand-finished in solid timber"></div>
+        <div class="media filled fullbleed"><img src="../Assets/Isobar_Feature_stills_Features_Close_H_V01_0000.jpg" alt="ISOBAR hand-finished in solid timber"></div>
       </div>
     </section>
 
@@ -413,21 +481,137 @@
       <div class="wrap">
         <p class="eyebrow">07 — Models</p>
         <h2 class="h2">Three sizes, three horizons.</h2>
-        <div class="models-grid">
-          <div class="model">
-            <h3>ISOBAR 3</h3>
-            <span class="price">€239</span>
-            <span class="spec">Three-day forecast · placeholder spec</span>
+      </div>
+      <div class="models-fw fullbleed">
+        <img src="../Assets/compressed_jpg/ISOBAR_V05_001_0000.jpg" alt="ISOBAR 3, 5 and 7 side by side" loading="lazy">
+      </div>
+      <div class="wrap">
+        <div class="models-cards">
+          <div class="model-cardv1">
+            <p class="model-type">Desk</p>
+            <p class="model-name">ISOBAR 3</p>
+            <div class="model-bar">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3553.31 280" class="model-icon">
+<defs>
+    <style>
+      .st0 { fill: #ddd5c4; }
+      .st1 { fill: url(#lg-sz-3); }
+    </style>
+    <linearGradient id="lg-sz-3" x1="81" y1="140.13" x2="3515.68" y2="140.13" gradientUnits="userSpaceOnUse">
+      <stop offset=".03" stop-color="#08b3e6"/>
+      <stop offset=".09" stop-color="#18dfb1"/>
+      <stop offset=".14" stop-color="#55eb8c"/>
+      <stop offset=".2" stop-color="#f9de61"/>
+      <stop offset=".23" stop-color="#ffdd60"/>
+      <stop offset=".3" stop-color="#fade61"/>
+      <stop offset=".36" stop-color="#69eb83"/>
+      <stop offset=".41" stop-color="#0fc7ce"/>
+      <stop offset=".45" stop-color="#05abee"/>
+      <stop offset=".51" stop-color="#40eb94"/>
+      <stop offset=".56" stop-color="#fdd25e"/>
+      <stop offset=".6" stop-color="#e56649"/>
+      <stop offset=".66" stop-color="#af2546"/>
+      <stop offset=".72" stop-color="#cd243e"/>
+      <stop offset=".79" stop-color="#e8764c"/>
+      <stop offset=".84" stop-color="#fed65f"/>
+      <stop offset=".91" stop-color="#7ceb7c"/>
+      <stop offset=".99" stop-color="#17ddb4"/>
+    </linearGradient>
+  </defs>
+  <path class="st0" d="M582.87,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st0" d="M1072.99,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st1" d="M1528.15,204.33H121.67c-27.58,0-50.02-22.44-50.02-50.02v-28.35c0-27.58,22.44-50.02,50.02-50.02h1406.48c27.58,0,50.02,22.44,50.02,50.02v28.35c0,27.58-22.44,50.02-50.02,50.02h0ZM121.67,90.94c-19.31,0-35.02,15.71-35.02,35.02v28.35c0,19.31,15.71,35.02,35.02,35.02h1406.48c19.31,0,35.02-15.71,35.02-35.02v-28.35c0-19.31-15.71-35.02-35.02-35.02H121.67Z"/>
+  <path class="st0" d="M1542.32,21.75c49.65,0,90.04,40.39,90.04,90.04v56.69c0,49.65-40.39,90.04-90.04,90.04H107.5c-49.65,0-90.04-40.39-90.04-90.04v-56.69c0-49.65,40.39-90.04,90.04-90.04h1434.83M1542.32,16.75H107.5C55.09,16.75,12.46,59.38,12.46,111.79v56.69c0,52.41,42.63,95.04,95.04,95.04h1434.83c52.4,0,95.04-42.63,95.04-95.04v-56.69c0-52.4-42.63-95.04-95.04-95.04h-.01Z"/>
+</svg>
+            </div>
+            <p class="model-days">3-day forecast</p>
+            <p class="model-price">From €239</p>
           </div>
-          <div class="model">
-            <h3>ISOBAR 5</h3>
-            <span class="price">€329</span>
-            <span class="spec">Five-day forecast · placeholder spec</span>
+          <div class="model-cardv1">
+            <p class="model-type">Wall · Medium</p>
+            <p class="model-name">ISOBAR 5</p>
+            <div class="model-bar">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3588.22 271.93" class="model-icon">
+<defs>
+    <style>
+      .st2 { fill: #ddd5c4; }
+      .st3 { fill: url(#lg-sz-5); }
+    </style>
+    <linearGradient id="lg-sz-5" x1="85.53" y1="140.13" x2="3491.6" y2="140.13" gradientUnits="userSpaceOnUse">
+      <stop offset=".03" stop-color="#08b3e6"/>
+      <stop offset=".09" stop-color="#18dfb1"/>
+      <stop offset=".14" stop-color="#55eb8c"/>
+      <stop offset=".2" stop-color="#f9de61"/>
+      <stop offset=".23" stop-color="#ffdd60"/>
+      <stop offset=".3" stop-color="#fade61"/>
+      <stop offset=".36" stop-color="#69eb83"/>
+      <stop offset=".41" stop-color="#0fc7ce"/>
+      <stop offset=".45" stop-color="#05abee"/>
+      <stop offset=".51" stop-color="#40eb94"/>
+      <stop offset=".56" stop-color="#fdd25e"/>
+      <stop offset=".6" stop-color="#e56649"/>
+      <stop offset=".66" stop-color="#af2546"/>
+      <stop offset=".72" stop-color="#cd243e"/>
+      <stop offset=".79" stop-color="#e8764c"/>
+      <stop offset=".84" stop-color="#fed65f"/>
+      <stop offset=".91" stop-color="#7ceb7c"/>
+      <stop offset=".99" stop-color="#17ddb4"/>
+    </linearGradient>
+  </defs>
+  <path class="st2" d="M582.87,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st2" d="M1072.99,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st2" d="M1563.12,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st2" d="M2053.24,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st3" d="M2504.55,204.33H121.67c-27.58,0-50.02-22.44-50.02-50.02v-28.35c0-27.58,22.44-50.02,50.02-50.02h2382.88c27.58,0,50.02,22.44,50.02,50.02v28.35c0,27.58-22.44,50.02-50.02,50.02h0ZM121.67,90.94c-19.31,0-35.02,15.71-35.02,35.02v28.35c0,19.31,15.71,35.02,35.02,35.02h2382.88c19.31,0,35.02-15.71,35.02-35.02v-28.35c0-19.31-15.71-35.02-35.02-35.02H121.67Z"/>
+  <path class="st2" d="M2518.72,21.75c49.65,0,90.04,40.39,90.04,90.04v56.69c0,49.65-40.39,90.04-90.04,90.04H107.5c-49.65,0-90.04-40.39-90.04-90.04v-56.69c0-49.65,40.39-90.04,90.04-90.04h2411.23M2518.72,16.75H107.5C55.09,16.75,12.46,59.38,12.46,111.79v56.69c0,52.41,42.63,95.04,95.04,95.04h2411.23c52.4,0,95.04-42.63,95.04-95.04v-56.69c0-52.4-42.63-95.04-95.04-95.04h-.01Z"/>
+</svg>
+            </div>
+            <p class="model-days">5-day forecast</p>
+            <p class="model-price">From €329</p>
           </div>
-          <div class="model">
-            <h3>ISOBAR 7</h3>
-            <span class="price">€449</span>
-            <span class="spec">Seven-day forecast · placeholder spec</span>
+          <div class="model-cardv1">
+            <p class="model-type">Wall · Large</p>
+            <p class="model-name">ISOBAR 7</p>
+            <div class="model-bar">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3588.22 280.27" class="model-icon">
+<defs>
+    <style>
+      .st4 { fill: #ddd5c4; }
+      .st5 { fill: url(#lg-sz-7); }
+    </style>
+    <linearGradient id="lg-sz-7" x1="123.84" y1="141.17" x2="3473.86" y2="141.17" gradientTransform="translate(0 281.31) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset=".03" stop-color="#08b3e6"/>
+      <stop offset=".09" stop-color="#18dfb1"/>
+      <stop offset=".14" stop-color="#55eb8c"/>
+      <stop offset=".2" stop-color="#f9de61"/>
+      <stop offset=".23" stop-color="#ffdd60"/>
+      <stop offset=".3" stop-color="#fade61"/>
+      <stop offset=".36" stop-color="#69eb83"/>
+      <stop offset=".41" stop-color="#0fc7ce"/>
+      <stop offset=".45" stop-color="#05abee"/>
+      <stop offset=".51" stop-color="#40eb94"/>
+      <stop offset=".56" stop-color="#fdd25e"/>
+      <stop offset=".6" stop-color="#e56649"/>
+      <stop offset=".66" stop-color="#af2546"/>
+      <stop offset=".72" stop-color="#cd243e"/>
+      <stop offset=".79" stop-color="#e8764c"/>
+      <stop offset=".84" stop-color="#fed65f"/>
+      <stop offset=".91" stop-color="#7ceb7c"/>
+      <stop offset=".99" stop-color="#17ddb4"/>
+    </linearGradient>
+  </defs>
+  <path class="st4" d="M582.87,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st4" d="M1072.99,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st4" d="M1563.12,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st4" d="M2053.24,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st4" d="M2543.36,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st4" d="M3033.49,80.88c-2.17,0-4,3.24-4,7.08v104.35c0,3.84,1.83,7.08,4,7.08s4-3.24,4-7.08v-104.35c0-3.84-1.83-7.08-4-7.08Z"/>
+  <path class="st5" d="M3466.55,204.33H121.67c-27.58,0-50.02-22.44-50.02-50.02v-28.35c0-27.58,22.44-50.02,50.02-50.02h3344.88c27.58,0,50.02,22.44,50.02,50.02v28.35c0,27.58-22.44,50.02-50.02,50.02h0ZM121.67,90.94c-19.31,0-35.02,15.71-35.02,35.02v28.35c0,19.31,15.71,35.02,35.02,35.02h3344.88c19.31,0,35.02-15.71,35.02-35.02v-28.35c0-19.31-15.71-35.02-35.02-35.02H121.67Z"/>
+  <path class="st4" d="M3480.72,21.75c49.65,0,90.04,40.39,90.04,90.04v56.69c0,49.65-40.39,90.04-90.04,90.04H107.5c-49.65,0-90.04-40.39-90.04-90.04v-56.69c0-49.65,40.39-90.04,90.04-90.04h3373.23M3480.72,16.75H107.5C55.09,16.75,12.46,59.38,12.46,111.79v56.69c0,52.41,42.63,95.04,95.04,95.04h3373.23c52.4,0,95.04-42.63,95.04-95.04v-56.69c0-52.4-42.63-95.04-95.04-95.04h-.01Z"/>
+</svg>
+            </div>
+            <p class="model-days">7-day forecast</p>
+            <p class="model-price">From €449</p>
           </div>
         </div>
       </div>
