@@ -223,13 +223,13 @@
 
   /* ── scrollytelling video stage ── */
   .scrolly{ position:relative; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw; width:100vw; margin-top:clamp(34px,5vw,60px);
-    height:calc(100vh + (var(--steps) - 1) * 75vh); }
+    height:calc(100vh + (var(--steps) - 1) * 95vh); }
   /* the stage takes the clips' own 2.4:1 ratio, so a full-viewport-width band
      fills edge-to-edge with no crop and no letterbox; centred in the viewport. */
   .scrolly-stage{ position:sticky; top:max(0px, calc((100vh - 100vw / 2.4) / 2)); width:100%; aspect-ratio:1920 / 800; overflow:hidden; background:#0b0b0b; }
   .scrolly-vid{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; will-change:opacity; }
   .scrolly-vid:first-child{ opacity:1; }
-  @media(max-width:640px){ .scrolly{ height:calc(80vh + (var(--steps) - 1) * 60vh); } }
+  @media(max-width:640px){ .scrolly{ height:calc(80vh + (var(--steps) - 1) * 78vh); } }
   .models-cards{ margin-top:clamp(28px,3.5vw,44px); display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
   .model-cardv1{ padding:clamp(24px,3vw,34px) clamp(20px,2.4vw,28px); display:flex; flex-direction:column; gap:.5rem; border-right:1px solid var(--line); background:rgba(221,213,196,.02); }
   .model-cardv1:last-child{ border-right:none; }
@@ -385,7 +385,7 @@
           <video class="scrolly-vid" muted loop playsinline preload="auto"><source src="../Assets/Isobar_Herovideo_WEATHER_EXPLANATION.mp4" type="video/mp4"></video>
           <video class="scrolly-vid" muted loop playsinline preload="auto"><source src="../Assets/Isobar_Herovideo_WEATHER_EXPLANATION_DAYS.mp4" type="video/mp4"></video>
           <video class="scrolly-vid" muted loop playsinline preload="auto"><source src="../Assets/Isobar_Herovideo_WIND_EXPLANATION.mp4" type="video/mp4"></video>
-          <video class="scrolly-vid" muted loop playsinline preload="auto"><source src="../Assets/Isobar_Herovideo_LIVE_TIDE_EXPLANATION.mp4" type="video/mp4"></video>
+          <video class="scrolly-vid" muted loop playsinline preload="auto"><source src="../Assets/Isobar_Herovideo_SWELL_EXPLANATION.mp4" type="video/mp4"></video>
         </div>
       </div>
     </section>
@@ -883,10 +883,15 @@
         const g = p * (n - 1);
         const k = Math.min(n - 1, Math.floor(g));
         const t = g - k;
+        // hold the current clip for the first part of each segment, then run a
+        // quicker crossfade over the last FADE portion (smoothstep-eased).
+        const FADE = 0.4;
+        let inc = t <= 1 - FADE ? 0 : (t - (1 - FADE)) / FADE;
+        inc = inc * inc * (3 - 2 * inc); // smoothstep
         vids.forEach((v, i) => {
           let o = 0;
           if (i === k) o = 1;            // current clip: fully opaque underneath
-          else if (i === k + 1) o = t;   // next clip: fading in on top
+          else if (i === k + 1) o = inc; // next clip: fading in on top
           v.style.opacity = o;
         });
       }
