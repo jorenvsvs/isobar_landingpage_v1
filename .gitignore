@@ -35,6 +35,12 @@ isobar/Assets/**/*
 !isobar/Assets/Isobar_Herovideo_SWELL_v2.mp4
 !isobar/Assets/Isobar_Herovideo_TIDE_v2.mp4
 !isobar/Assets/Isobar_Herovideo_LIVE_WIND_v2.mp4
+!isobar/Assets/Isobar_Herovideo_OFF.mp4
+!isobar/Assets/Isobar_Herovideo_WEATHER_EXPLANATION.mp4
+!isobar/Assets/Isobar_Herovideo_WEATHER_EXPLANATION_DAYS.mp4
+!isobar/Assets/Isobar_Herovideo_WIND_EXPLANATION.mp4
+!isobar/Assets/Isobar_Herovideo_LIVE_TIDE_EXPLANATION.mp4
+!isobar/Assets/Isobar_Herovideo_LIVE_WIND_EXPLANATION.mp4
 !isobar/Assets/compressed_jpg/
 !isobar/Assets/compressed_jpg/ISOBAR_V03_camI_FORECAST_SWELL_V04.jpg
 !isobar/Assets/compressed_jpg/ISOBAR_V03_camI_FORECAST_WEATHER_V04.jpg
