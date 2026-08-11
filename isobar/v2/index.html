@@ -230,6 +230,14 @@
   .scrolly-vid{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; will-change:opacity; }
   .scrolly-vid:first-child{ opacity:1; }
   @media(max-width:640px){ .scrolly{ height:calc(80vh + (var(--steps) - 1) * 78vh); } }
+
+  /* ── scroll progress rail (echoes the lamp: a rounded capsule + lit LED) ── */
+  .scroll-rail{ position:fixed; right:26px; top:50%; transform:translateY(-50%); height:44vh; max-height:380px; width:6px; z-index:60; pointer-events:none; }
+  .scroll-rail-body{ position:absolute; inset:0; border-radius:100px; background:rgba(221,213,196,.12); box-shadow:inset 0 0 0 1px rgba(221,213,196,.05); }
+  .scroll-rail-thumb{ position:absolute; left:-2px; right:-2px; top:0; height:46px; border-radius:100px;
+    background:linear-gradient(to bottom,#08b3e6,#18dfb1,#55eb8c,#ffdd60,#e56649,#cd243e,#e8764c,#fed65f,#7ceb7c,#17ddb4);
+    box-shadow:0 0 12px 2px rgba(221,213,196,.32); }
+  @media(max-width:720px){ .scroll-rail{ right:12px; height:34vh; } }
   .models-cards{ margin-top:clamp(28px,3.5vw,44px); display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
   .model-cardv1{ padding:clamp(24px,3vw,34px) clamp(20px,2.4vw,28px); display:flex; flex-direction:column; gap:.5rem; border-right:1px solid var(--line); background:rgba(221,213,196,.02); }
   .model-cardv1:last-child{ border-right:none; }
@@ -670,6 +678,12 @@
     </div>
   </footer>
 
+  <!-- scroll progress rail — a lamp stood upright, with a lit position indicator -->
+  <div class="scroll-rail" aria-hidden="true">
+    <div class="scroll-rail-body"></div>
+    <div class="scroll-rail-thumb"></div>
+  </div>
+
   <script>
   // ═══════════════════════════════════════════════════════════════════
   // ISOBAR BACKGROUND — exact implementation from the almanac.works landing page
@@ -910,6 +924,27 @@
       }, { threshold: 0 });
       io.observe(track);
     });
+  })();
+  </script>
+
+  <script>
+  // ── SCROLL PROGRESS RAIL — moves the lit indicator with page position ──
+  (function () {
+    const rail = document.querySelector('.scroll-rail');
+    if (!rail) return;
+    const thumb = rail.querySelector('.scroll-rail-thumb');
+    let ticking = false;
+    function apply() {
+      ticking = false;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      const travel = rail.clientHeight - thumb.offsetHeight;
+      thumb.style.top = (p * travel) + 'px';
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(apply); } }
+    apply();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', apply);
   })();
   </script>
 
