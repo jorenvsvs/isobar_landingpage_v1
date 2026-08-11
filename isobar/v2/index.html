@@ -223,13 +223,13 @@
 
   /* ── scrollytelling video stage ── */
   .scrolly{ position:relative; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw; width:100vw; margin-top:clamp(34px,5vw,60px);
-    height:calc(100vh + (var(--steps) - 1) * 95vh); }
+    height:calc(100vh + var(--steps) * 95vh); }
   /* the stage takes the clips' own 2.4:1 ratio, so a full-viewport-width band
      fills edge-to-edge with no crop and no letterbox; centred in the viewport. */
   .scrolly-stage{ position:sticky; top:max(0px, calc((100vh - 100vw / 2.4) / 2)); width:100%; aspect-ratio:1920 / 800; overflow:hidden; background:#0b0b0b; }
   .scrolly-vid{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; will-change:opacity; }
   .scrolly-vid:first-child{ opacity:1; }
-  @media(max-width:640px){ .scrolly{ height:calc(80vh + (var(--steps) - 1) * 78vh); } }
+  @media(max-width:640px){ .scrolly{ height:calc(80vh + var(--steps) * 78vh); } }
 
   /* ── scroll progress rail (echoes the lamp: a rounded capsule + lit LED) ── */
   .scroll-rail{ position:fixed; right:26px; top:50%; transform:translateY(-50%); height:44vh; max-height:380px; width:6px; z-index:60; pointer-events:none; }
@@ -893,7 +893,9 @@
         const top = track.getBoundingClientRect().top;
         let p = total > 0 ? -top / total : 0;
         p = Math.max(0, Math.min(1, p));
-        const g = p * (n - 1);
+        // map across n segments (not n-1) so the final clip gets a full hold
+        // segment of its own instead of appearing only at p = 1.
+        const g = p * n;
         const k = Math.min(n - 1, Math.floor(g));
         const t = g - k;
         // hold the current clip for the first part of each segment, then run a
