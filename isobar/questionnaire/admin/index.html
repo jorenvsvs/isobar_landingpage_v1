@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>ISOBAR · Responses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Faustina:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0b0b; --surface:#131313; --surface-2:#191817;
+    --ink:#f2efe8; --bone:#ddd5c4; --muted:#8b8177; --faint:#5c554e;
+    --line:#272523; --line-strong:#3a3733;
+    --accent:#25D1C9;
+    --g1:#00fff3; --g2:#00ff11; --g3:#ffe100; --g4:#ff8a00; --g5:#FF0000;
+    --ok:#00ff77; --warn:#ffb020; --bad:#ff5b5b;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--ink); font-family:'Manrope',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; font-size:15px; line-height:1.5; }
+  h1,h2,h3{ font-family:'Faustina',Georgia,serif; font-weight:500; margin:0; letter-spacing:.2px; }
+  a{ color:var(--accent); }
+  button{ font-family:inherit; }
+
+  /* ── login ── */
+  #login{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .login-card{ width:100%; max-width:360px; background:var(--surface); border:1px solid var(--line);
+    border-radius:16px; padding:34px 30px; }
+  .login-card h1{ font-size:1.5rem; margin-bottom:4px; }
+  .login-card .sub{ color:var(--muted); font-size:.9rem; margin-bottom:24px; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:.78rem; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.06em; }
+  .field input{ width:100%; background:var(--bg); border:1px solid var(--line-strong); border-radius:10px;
+    padding:11px 13px; color:var(--ink); font-size:.95rem; }
+  .field input:focus{ outline:none; border-color:var(--accent); }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;
+    background:var(--accent); color:#04201f; border:none; border-radius:10px; padding:11px 18px;
+    font-weight:700; font-size:.92rem; letter-spacing:.02em; }
+  .btn:disabled{ opacity:.5; cursor:default; }
+  .btn.ghost{ background:transparent; color:var(--bone); border:1px solid var(--line-strong); font-weight:600; }
+  .btn.ghost:hover{ border-color:var(--accent); color:var(--ink); }
+  .btn-wide{ width:100%; margin-top:6px; }
+  .login-err{ color:var(--bad); font-size:.85rem; margin-top:12px; min-height:1.1em; }
+
+  /* ── app shell ── */
+  #app{ display:none; }
+  .topbar{ position:sticky; top:0; z-index:20; background:rgba(11,11,11,.92); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line); padding:14px 22px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .topbar h1{ font-size:1.2rem; }
+  .topbar .dot{ color:var(--faint); }
+  .topbar .spacer{ flex:1; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:22px; }
+
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:8px; }
+  .stat{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:15px 16px; }
+  .stat .n{ font-family:'Faustina',serif; font-size:1.8rem; line-height:1; }
+  .stat .l{ color:var(--muted); font-size:.8rem; margin-top:6px; }
+  .stat .n.good{ color:var(--ok); } .stat .n.warn{ color:var(--warn); }
+
+  .banner{ margin:14px 0; padding:11px 15px; border-radius:10px; font-size:.86rem;
+    background:rgba(255,176,32,.09); border:1px solid rgba(255,176,32,.35); color:#ffd98a; }
+
+  .tabs{ display:flex; gap:6px; margin:20px 0 6px; flex-wrap:wrap; border-bottom:1px solid var(--line); }
+  .tab{ background:transparent; border:none; color:var(--muted); padding:10px 14px; cursor:pointer;
+    font-size:.9rem; font-weight:600; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab:hover{ color:var(--bone); }
+  .tab.active{ color:var(--ink); border-bottom-color:var(--accent); }
+  .panel{ display:none; padding-top:18px; }
+  .panel.active{ display:block; }
+
+  /* ── filters ── */
+  .filterbar{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:18px; }
+  .filterbar .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  select{ background:var(--bg); border:1px solid var(--line-strong); border-radius:9px; color:var(--ink);
+    padding:8px 11px; font-size:.88rem; font-family:inherit; max-width:100%; }
+  select:focus{ outline:none; border-color:var(--accent); }
+  .chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .chip{ display:inline-flex; align-items:center; gap:8px; background:var(--surface-2); border:1px solid var(--line-strong);
+    border-radius:20px; padding:5px 6px 5px 13px; font-size:.82rem; color:var(--bone); }
+  .chip button{ background:none; border:none; color:var(--muted); cursor:pointer; font-size:1rem; line-height:1;
+    width:20px; height:20px; border-radius:50%; }
+  .chip button:hover{ color:var(--bad); background:var(--line); }
+  .muted{ color:var(--muted); }
+  .faint{ color:var(--faint); }
+
+  /* ── question cards ── */
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px; }
+  .card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px 18px 16px; }
+  .card.span2{ grid-column:1/-1; }
+  .card h3{ font-size:1.02rem; margin-bottom:2px; }
+  .card .qmeta{ color:var(--faint); font-size:.75rem; margin-bottom:14px; letter-spacing:.03em; }
+  .bar-row{ margin-bottom:9px; }
+  .bar-row .top{ display:flex; justify-content:space-between; gap:10px; font-size:.85rem; margin-bottom:4px; }
+  .bar-row .top .lab{ color:var(--bone); }
+  .bar-row .top .val{ color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .track{ height:7px; background:var(--surface-2); border-radius:6px; overflow:hidden; }
+  .fill{ height:100%; border-radius:6px; background:linear-gradient(90deg,var(--accent),#1a9b95); }
+  .fill.g{ background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g5)); }
+  .empty{ color:var(--faint); font-size:.85rem; font-style:italic; }
+
+  table{ border-collapse:collapse; width:100%; font-size:.85rem; }
+  th,td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th{ color:var(--muted); font-weight:600; font-size:.76rem; text-transform:uppercase; letter-spacing:.05em; position:sticky; top:0; background:var(--surface); }
+  .scroll{ overflow-x:auto; border:1px solid var(--line); border-radius:12px; }
+  tbody tr:hover{ background:var(--surface-2); }
+  td.num{ text-align:right; font-variant-numeric:tabular-nums; }
+
+  .ct-cell{ text-align:center; font-variant-numeric:tabular-nums; }
+  .ct-cell .pct{ display:block; color:var(--faint); font-size:.72rem; }
+
+  .opentext{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+  .opentext .meta{ color:var(--faint); font-size:.74rem; margin-bottom:6px; }
+  .opentext .txt{ color:var(--ink); white-space:pre-wrap; }
+
+  .legend{ display:flex; gap:14px; flex-wrap:wrap; font-size:.78rem; color:var(--muted); margin-top:10px; }
+  .legend i{ display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+  .keyq{ border-color:rgba(37,209,201,.4); box-shadow:0 0 0 1px rgba(37,209,201,.15) inset; }
+  .keyq h3::after{ content:'KEY'; font-family:'Manrope'; font-size:.6rem; font-weight:700; letter-spacing:.1em;
+    color:var(--accent); border:1px solid rgba(37,209,201,.4); border-radius:4px; padding:2px 5px; margin-left:9px; vertical-align:middle; }
+  .spin{ color:var(--muted); padding:40px 0; text-align:center; }
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login">
+  <form class="login-card" id="loginForm">
+    <h1>ISOBAR · Responses</h1>
+    <div class="sub">Sign in to view questionnaire results.</div>
+    <div class="field"><label>Email</label><input type="email" id="email" autocomplete="username" required></div>
+    <div class="field"><label>Password</label><input type="password" id="password" autocomplete="current-password" required></div>
+    <button class="btn btn-wide" id="loginBtn" type="submit">Sign in</button>
+    <div class="login-err" id="loginErr"></div>
+  </form>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app">
+  <div class="topbar">
+    <h1>ISOBAR · Responses</h1>
+    <span class="dot" id="lastSub"></span>
+    <span class="spacer"></span>
+    <button class="btn ghost" id="refreshBtn" type="button">↻ Refresh</button>
+    <button class="btn ghost" id="csvBtn" type="button">⭳ CSV</button>
+    <button class="btn ghost" id="logoutBtn" type="button">Sign out</button>
+  </div>
+
+  <div class="wrap">
+    <div class="stats" id="stats"></div>
+    <div id="sampleNote"></div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="crosstab">Cross-tab</button>
+      <button class="tab" data-tab="open">Open text</button>
+      <button class="tab" data-tab="raw">Raw &amp; contacts</button>
+    </div>
+
+    <!-- filter bar (shared by overview / crosstab / open) -->
+    <div class="filterbar" id="filterbar">
+      <div class="row">
+        <span class="muted" style="font-size:.85rem;">Filter responses:</span>
+        <select id="filterQ"></select>
+        <select id="filterV"></select>
+        <button class="btn ghost" id="addFilter" type="button" style="padding:8px 14px;">Add filter</button>
+        <span class="muted" id="filterCount" style="font-size:.82rem;"></span>
+      </div>
+      <div class="chips" id="filterChips"></div>
+    </div>
+
+    <div class="panel active" data-panel="overview" id="overview"></div>
+
+    <div class="panel" data-panel="crosstab" id="crosstab">
+      <div class="card span2">
+        <div class="row" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px;">
+          <div><div class="qmeta">Rows</div><select id="ctRow"></select></div>
+          <div><div class="qmeta">Columns</div><select id="ctCol"></select></div>
+        </div>
+        <div class="scroll" id="ctTable"></div>
+        <div class="muted" style="font-size:.8rem; margin-top:10px;">Cells show respondent counts; the small number is the row&nbsp;%. Try Q8 × Q9, or Q4 × Q11 to check comprehension by colour vision.</div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="open" id="open">
+      <div class="filterbar" style="margin-bottom:16px;">
+        <div class="row"><span class="muted" style="font-size:.85rem;">Question:</span><select id="openQ"></select></div>
+      </div>
+      <div id="openList"></div>
+    </div>
+
+    <div class="panel" data-panel="raw" id="raw"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════ CONFIG ═══════════════════════ */
+const SUPABASE_URL = "https://gkmefipfvrbpselksnfm.supabase.co";
+const SUPABASE_KEY = "sb_publishable_CB81hnD5T23kRX5mBZx6WA_0-O0qQ7j";
+const TABLE        = "questionnaire_responses";
+const SESSION_KEY  = "isobar_admin_session";
+
+/* ═══════════════════════ QUESTION MODEL ═══════════════════════ */
+// Order arrays mirror the exact values stored by the questionnaire.
+const SINGLE = [
+  ['q2_sessions','Q2 · Sessions per year',['Fewer than 10','10 to 30','30 to 60','60 to 100','More than 100']],
+  ['q3_experience','Q3 · Years in main sport',['Less than 1 year','1 to 3 years','3 to 10 years','More than 10 years']],
+  ['q4_colour_vision','Q4 · Colour-vision deficiency',['Yes','No','Not sure']],
+  ['q6_checks_per_day','Q6 · Checks per day (in season)',['Once','2 to 3 times','4 to 6 times','More than 6 times']],
+  ['q7_spots','Q7 · Spots checked regularly',['1','2','3 to 4','5 or more']],
+  ['q8_decide_ahead','Q8 · How far ahead they decide',['Same day','The evening before','1 to 2 days ahead','3 to 4 days ahead','5 or more days ahead']],
+  ['q9_trust_ahead','Q9 · How far ahead they trust a forecast',['12 hours','24 hours','2 days','3 days','5 days','7 days']],
+  ['q11_concept_clarity','Q11 · Concept clarity (after reveal)',['Completely clear','Mostly clear','Somewhat unclear',"I don't understand it"]],
+  ['q13_planning_fit','Q13 · Fits how they plan',['Very well','Reasonably well','Not really','Not at all']],
+  ['q14_easiest_read','Q14 · Easiest to read at a glance',['3-day','5-day','7-day','No difference']],
+  ['q15_useful_length','Q15 · Most useful forecast length',['Current day only','2 days','3 days','4 days','5 days','6 days','7 days']],
+  ['q17_default_view','Q17 · Default view',['The full multi-day forecast','The single-day view','I would switch often','Not sure']],
+  ['q18_marker_usefulness','Q18 · Current-moment marker',['Essential','Nice to have','Not important']],
+  ['q23_placement','Q23 · Where they would put it',['On a desk','On a wall at home, living area','On a wall at home, hallway or entrance','In an office or workspace','In a shed, garage or workshop',"I wouldn't have a place for it"]],
+  ['q24_mains_socket','Q24 · Mains socket where placed',['Yes','Probably, with a short extension','No','Not sure']],
+  ['q25_cable_bother','Q25 · Visible cable bother',['Not at all','A little','A lot, it would affect whether I buy']],
+  ['q26_timber','Q26 · Timber preference',['Oak','Walnut','No preference','I would want a different material']],
+  ['q28_price_reaction','Q28 · Reaction to planned prices',['Cheaper than I expected','About what I expected','More expensive than I expected','Far more expensive than I expected']],
+  ['q31_which_buy','Q31 · Which they would buy',['3-day, €249','5-day, €289','7-day, €329','None of them']],
+  ['q32_gift','Q32 · Buy as a gift',['Yes','Maybe','No']],
+  ['q33_subscription','Q33 · Would pay for subscription',['Yes','Maybe','No']],
+  ['q34_sub_price','Q34 · Fair annual subscription price',['Under €15','€15 to €25','€25 to €40','More than €40']],
+  ['q35_preorder','Q35 · Pre-order at a discount',['Yes','Maybe','No']],
+  ['q37_followup','Q37 · OK to contact for follow-up',['Yes','No thanks']],
+];
+const MULTI = [
+  ['q1_sports','Q1 · Sports',['Kitesurfing','Wing foiling','Windsurfing','Surfing','Sailing','Paddleboarding','None of these','Other']],
+  ['q5_sources','Q5 · Apps / sources used',['Windy','Windguru','Windfinder','Magicseaweed / Surfline','Stormglass','Open-Meteo based apps','Local webcams','A national weather service app','Other']],
+];
+const RANK_ITEMS = ['Wind speed','Wind direction','Wave or swell height','Tide','Rain','Temperature','Cloud cover / sun'];
+const OPEN = [
+  ['q10_gradient_read','Q10 · What do you think it is telling you?',true],
+  ['q12_unclear','Q12 · What was unclear / confusing?',false],
+  ['q16_why_length','Q16 · Why that forecast length?',false],
+  ['q20_other_show','Q20 · Anything else it should show?',false],
+  ['q21_design_like','Q21 · What they like about the design',false],
+  ['q22_design_dislike','Q22 · What they dislike / would change',false],
+  ['q30_stop_reason','Q30 · What would stop them buying',false],
+  ['q36_anything_else','Q36 · Anything else to tell us',false],
+];
+const PRICE = { too:'q27_too_expensive', exp:'q27_expensive', good:'q27_good_value', cheap:'q27_cheap' };
+
+/* ═══════════════════════ AUTH ═══════════════════════ */
+const $ = s => document.querySelector(s);
+let session = null;
+
+function loadSession(){
+  try{ session = JSON.parse(localStorage.getItem(SESSION_KEY)||'null'); }catch(_){ session=null; }
+}
+function saveSession(s){ session=s; localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+function clearSession(){ session=null; localStorage.removeItem(SESSION_KEY); }
+
+async function login(email,password){
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`,{
+    method:'POST', headers:{ 'apikey':SUPABASE_KEY, 'Content-Type':'application/json' },
+    body:JSON.stringify({ email, password })
+  });
+  const d = await r.json();
+  if(!r.ok) throw new Error(d.error_description || d.msg || d.error || 'Sign-in failed');
+  saveSession({ access_token:d.access_token, refresh_token:d.refresh_token,
+    expires_at: (d.expires_at ? d.expires_at*1000 : Date.now()+ (d.expires_in||3600)*1000) });
+}
+async function refresh(){
+  if(!session?.refresh_token) throw new Error('no refresh token');
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,{
+    method:'POST', headers:{ 'apikey':SUPABASE_KEY, 'Content-Type':'application/json' },
+    body:JSON.stringify({ refresh_token:session.refresh_token })
+  });
+  const d = await r.json();
+  if(!r.ok) throw new Error('refresh failed');
+  saveSession({ access_token:d.access_token, refresh_token:d.refresh_token,
+    expires_at:(d.expires_at ? d.expires_at*1000 : Date.now()+ (d.expires_in||3600)*1000) });
+}
+
+/* ═══════════════════════ DATA ═══════════════════════ */
+let ROWS = [];
+let filters = [];   // [{key,label,value}]
+
+async function apiGet(path){
+  const doFetch = () => fetch(`${SUPABASE_URL}${path}`,{
+    headers:{ 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+session.access_token }
+  });
+  let r = await doFetch();
+  if(r.status===401){ await refresh(); r = await doFetch(); }
+  if(!r.ok){ throw new Error('HTTP '+r.status+' '+await r.text()); }
+  return r.json();
+}
+async function fetchData(){
+  ROWS = await apiGet(`/rest/v1/${TABLE}?select=*&order=created_at.desc`);
+}
+
+/* ═══════════════════════ HELPERS ═══════════════════════ */
+const labelOf = k => ([...SINGLE,...MULTI].find(q=>q[0]===k)||[])[1] || k;
+function normOther(v){ return (typeof v==='string' && v.startsWith('Other')) ? 'Other' : v; }
+function median(a){ if(!a.length) return null; const s=[...a].sort((x,y)=>x-y); const m=Math.floor(s.length/2);
+  return s.length%2 ? s[m] : (s[m-1]+s[m])/2; }
+
+function filtered(){
+  return ROWS.filter(row => filters.every(f=>{
+    const v = row[f.key];
+    if(Array.isArray(v)) return v.map(normOther).includes(f.value);
+    return String(v??'') === String(f.value);
+  }));
+}
+function distSingle(rows,key,order){
+  const c={}; let total=0;
+  rows.forEach(r=>{ let v=r[key]; if(v===null||v===undefined||v==='') return; v=normOther(v); v=String(v); c[v]=(c[v]||0)+1; total++; });
+  const keys=Object.keys(c).sort((a,b)=>{
+    const ia=order?order.indexOf(a):-1, ib=order?order.indexOf(b):-1;
+    if(ia!==ib) return (ia<0?1e9:ia)-(ib<0?1e9:ib);
+    return c[b]-c[a];
+  });
+  return { rows:keys.map(k=>({label:k,n:c[k]})), total };
+}
+function distMulti(rows,key,order){
+  const c={}; let responders=0;
+  rows.forEach(r=>{ const arr=r[key]; if(!Array.isArray(arr)||!arr.length) return; responders++;
+    new Set(arr.map(normOther)).forEach(v=>{ v=String(v); c[v]=(c[v]||0)+1; }); });
+  const keys=Object.keys(c).sort((a,b)=>{
+    const ia=order?order.indexOf(a):-1, ib=order?order.indexOf(b):-1;
+    if(ia!==ib) return (ia<0?1e9:ia)-(ib<0?1e9:ib);
+    return c[b]-c[a];
+  });
+  return { rows:keys.map(k=>({label:k,n:c[k]})), total:responders };
+}
+
+/* ═══════════════════════ RENDER: cards ═══════════════════════ */
+function barCard(title,meta,dist,{gradient=false,denom='responses',keyq=false}={}){
+  const max=Math.max(1,...dist.rows.map(r=>r.n));
+  const body = dist.total===0 ? `<div class="empty">No answers yet.</div>` :
+    dist.rows.map(r=>{
+      const pct = dist.total? Math.round(r.n/dist.total*100):0;
+      return `<div class="bar-row"><div class="top"><span class="lab">${esc(r.label)}</span>
+        <span class="val">${r.n} · ${pct}%</span></div>
+        <div class="track"><div class="fill${gradient?' g':''}" style="width:${Math.max(3,r.n/max*100)}%"></div></div></div>`;
+    }).join('');
+  return `<div class="card${keyq?' keyq':''}"><h3>${esc(title)}</h3>
+    <div class="qmeta">${esc(meta)} · n=${dist.total} ${denom}</div>${body}</div>`;
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function rankCard(rows){
+  // average position (1 = most useful). Lower is better.
+  const sum={}, cnt={};
+  RANK_ITEMS.forEach(i=>{sum[i]=0;cnt[i]=0;});
+  let n=0;
+  rows.forEach(r=>{ const arr=r.q19_ranking; if(!Array.isArray(arr)||!arr.length) return; n++;
+    arr.forEach((item,idx)=>{ if(sum[item]!==undefined){ sum[item]+=idx+1; cnt[item]++; } }); });
+  const scored = RANK_ITEMS.map(i=>({label:i, avg: cnt[i]? sum[i]/cnt[i] : null}))
+    .filter(x=>x.avg!==null).sort((a,b)=>a.avg-b.avg);
+  const worst = Math.max(1,...scored.map(s=>s.avg));
+  const body = n===0 ? `<div class="empty">No rankings yet.</div>` :
+    scored.map((s,i)=>`<div class="bar-row"><div class="top">
+      <span class="lab">${i+1}. ${esc(s.label)}</span><span class="val">avg ${s.avg.toFixed(2)}</span></div>
+      <div class="track"><div class="fill" style="width:${Math.max(3,(worst - s.avg + 0.3)/worst*100)}%"></div></div></div>`).join('');
+  return `<div class="card span2"><h3>Q19 · What matters on the display</h3>
+    <div class="qmeta">Average rank position, most useful first (1 = top) · n=${n}</div>${body}</div>`;
+}
+
+function intentCard(rows){
+  const vals = rows.map(r=>r.q29_buy_likelihood).filter(v=>v!==null&&v!==undefined&&v!=='').map(Number);
+  const total = vals.length;
+  const c=[0,0,0,0,0]; vals.forEach(v=>{ if(v>=1&&v<=5) c[v-1]++; });
+  const fives=c[4], fours=c[3];
+  const max=Math.max(1,...c);
+  const bars = [5,4,3,2,1].map(v=>{ const n=c[v-1]; const pct=total?Math.round(n/total*100):0;
+    const hi = v===5;
+    return `<div class="bar-row"><div class="top"><span class="lab">${v} ${v===5?'· definitely would':v===1?'· definitely not':''}</span>
+      <span class="val">${n} · ${pct}%</span></div>
+      <div class="track"><div class="fill" style="width:${Math.max(3,n/max*100)}%;${hi?'background:linear-gradient(90deg,var(--ok),#0a7)':''}"></div></div></div>`;
+  }).join('');
+  const note = total? `<div class="muted" style="font-size:.82rem;margin-top:10px;">
+    <b style="color:var(--ok)">${fives} said 5 (${Math.round(fives/total*100)}%)</b> — the only score that counts as real intent.
+    ${fours} said 4 (often just polite). Compare with Q31 below, where "None" is the honest no.</div>` : '';
+  return `<div class="card"><h3>Q29 · Purchase intent (1–5)</h3>
+    <div class="qmeta">At €249 / €289 / €329 · n=${total}</div>${total?bars:'<div class="empty">No answers yet.</div>'}${note}</div>`;
+}
+
+function vanWestendorp(rows){
+  const get = k => rows.map(r=>r[k]).filter(v=>v!==null&&v!==undefined&&v!=='').map(Number).filter(v=>!isNaN(v)&&v>0);
+  const too=get(PRICE.too), exp=get(PRICE.exp), good=get(PRICE.good), cheap=get(PRICE.cheap);
+  const n = Math.max(too.length,exp.length,good.length,cheap.length);
+  if(n<3){
+    return `<div class="card span2"><h3>Q27 · Van Westendorp price sensitivity</h3>
+      <div class="qmeta">Needs a handful of responses to plot · n=${n}</div>
+      <div class="empty">Not enough price answers yet.</div></div>`;
+  }
+  const all=[...too,...exp,...good,...cheap];
+  const lo=Math.floor(Math.min(...all)/10)*10, hi=Math.ceil(Math.max(...all)/10)*10;
+  const steps=64, xs=[]; for(let i=0;i<=steps;i++) xs.push(lo+(hi-lo)*i/steps);
+  const shareGE=(arr,x)=>arr.length? arr.filter(v=>v>=x).length/arr.length : 0;
+  const shareLE=(arr,x)=>arr.length? arr.filter(v=>v<=x).length/arr.length : 0;
+  const TC = xs.map(x=>shareGE(cheap,x));   // too cheap (descending)
+  const C  = xs.map(x=>shareGE(good,x));    // good value / not expensive (descending)
+  const E  = xs.map(x=>shareLE(exp,x));     // expensive (ascending)
+  const TE = xs.map(x=>shareLE(too,x));     // too expensive (ascending)
+  const cross=(a,b)=>{ for(let i=1;i<xs.length;i++){ const d0=a[i-1]-b[i-1], d1=a[i]-b[i];
+    if(d0===0) return xs[i-1]; if((d0<0)!==(d1<0)){ const t=d0/(d0-d1); return xs[i-1]+(xs[i]-xs[i-1])*t; } } return null; };
+  const opp=cross(TC,TE), ipp=cross(C,E);
+  const W=680,H=260,PL=44,PR=16,PT=14,PB=30;
+  const X=x=>PL+(x-lo)/(hi-lo)*(W-PL-PR);
+  const Y=v=>PT+(1-v)*(H-PT-PB);
+  const path=arr=>arr.map((v,i)=>`${i?'L':'M'}${X(xs[i]).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const line=(arr,col)=>`<path d="${path(arr)}" fill="none" stroke="${col}" stroke-width="2"/>`;
+  const xt=[]; for(let p=lo;p<=hi;p+=Math.max(10,Math.round((hi-lo)/6/10)*10)){ xt.push(`<text x="${X(p)}" y="${H-8}" fill="#8b8177" font-size="10" text-anchor="middle">€${p}</text>`); }
+  const yt=[0,.25,.5,.75,1].map(v=>`<text x="${PL-6}" y="${Y(v)+3}" fill="#8b8177" font-size="10" text-anchor="end">${v*100}%</text>
+    <line x1="${PL}" y1="${Y(v)}" x2="${W-PR}" y2="${Y(v)}" stroke="#272523"/>`).join('');
+  const mark=(x,lab,col)=> x==null?'':`<line x1="${X(x)}" y1="${PT}" x2="${X(x)}" y2="${H-PB}" stroke="${col}" stroke-dasharray="3 3" stroke-width="1.5"/>
+    <text x="${X(x)}" y="${PT+11}" fill="${col}" font-size="10" text-anchor="middle">${lab} €${Math.round(x)}</text>`;
+  const svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">
+    ${yt}${xt.join('')}
+    ${line(TC,'#00c2ff')}${line(C,'#00ff77')}${line(E,'#ffb020')}${line(TE,'#ff5b5b')}
+    ${mark(opp,'OPP','#ffffff')}${mark(ipp,'IPP','#bbbbbb')}</svg>`;
+  const summary = `<div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:12px;font-size:.85rem;">
+    <span><b>OPP</b> (optimal) <b style="color:#fff">${opp?'€'+Math.round(opp):'—'}</b></span>
+    <span><b>IPP</b> (indifference) <b>${ipp?'€'+Math.round(ipp):'—'}</b></span>
+    <span class="muted">medians — cheap €${median(cheap)??'—'} · good €${median(good)??'—'} · expensive €${median(exp)??'—'} · too&nbsp;expensive €${median(too)??'—'}</span></div>`;
+  return `<div class="card span2"><h3>Q27 · Van Westendorp price sensitivity</h3>
+    <div class="qmeta">Where the curves cross suggests price tolerance · n≈${n}</div>
+    ${summary}${svg}
+    <div class="legend">
+      <span><i style="background:#00c2ff"></i>Too cheap</span>
+      <span><i style="background:#00ff77"></i>Good value</span>
+      <span><i style="background:#ffb020"></i>Expensive</span>
+      <span><i style="background:#ff5b5b"></i>Too expensive</span>
+    </div></div>`;
+}
+
+/* ═══════════════════════ RENDER: panels ═══════════════════════ */
+function renderStats(){
+  const rows=filtered(), n=rows.length;
+  const clear = rows.filter(r=>['Completely clear','Mostly clear'].includes(r.q11_concept_clarity)).length;
+  const fives = rows.filter(r=>Number(r.q29_buy_likelihood)===5).length;
+  const contactable = rows.filter(r=>r.email && r.email.trim()).length;
+  const st=[
+    ['n', n, 'Responses'+(filters.length?' (filtered)':'')],
+    ['n'+(clear/Math.max(1,n)>=.6?' good':''), n?Math.round(clear/n*100)+'%':'—', 'Found concept clear (Q11)'],
+    ['n'+(fives?' good':''), fives, 'Definite buyers (Q29 = 5)'],
+    ['n', contactable, 'Left an email'],
+  ];
+  $('#stats').innerHTML = st.map(([cls,v,l])=>`<div class="stat"><div class="${cls}">${v}</div><div class="l">${l}</div></div>`).join('');
+  const last = ROWS[0]?.submitted_at_client || ROWS[0]?.created_at;
+  $('#lastSub').textContent = ROWS.length? 'last: '+new Date(last).toLocaleString() : '';
+  const note = $('#sampleNote');
+  if(ROWS.length===0) note.innerHTML='';
+  else if(ROWS.length<20) note.innerHTML=`<div class="banner">Only ${ROWS.length} responses — treat everything as anecdotal; the open-text answers are the useful part below 20.</div>`;
+  else if(ROWS.length<40) note.innerHTML=`<div class="banner">${ROWS.length} responses — directional only. Cross-tabs get shaky below ~40.</div>`;
+  else note.innerHTML='';
+}
+
+function renderOverview(){
+  const rows=filtered();
+  let html='<div class="grid">';
+  // key analytic cards first
+  html+=barCard('Q11 · Concept clarity','After the reveal',distSingle(rows,'q11_concept_clarity',SINGLE.find(s=>s[0]==='q11_concept_clarity')[2]),{keyq:true});
+  html+=intentCard(rows);
+  html+=vanWestendorp(rows);
+  html+=rankCard(rows);
+  // multi-selects
+  MULTI.forEach(([k,l,o])=>{ html+=barCard(l,'Multi-select (respondents may pick several)',distMulti(rows,k,o),{denom:'respondents'}); });
+  // all single-choice in order
+  SINGLE.forEach(([k,l,o])=>{ if(k==='q11_concept_clarity') return;
+    const gradient = ['q14_easiest_read','q15_useful_length','q9_trust_ahead','q8_decide_ahead'].includes(k);
+    html+=barCard(l,'Single choice',distSingle(rows,k,o),{gradient}); });
+  html+='</div>';
+  $('#overview').innerHTML=html;
+}
+
+function renderCrosstab(){
+  const rowK=$('#ctRow').value, colK=$('#ctCol').value;
+  const rowMeta=SINGLE.find(s=>s[0]===rowK), colMeta=SINGLE.find(s=>s[0]===colK);
+  if(!rowMeta||!colMeta){ $('#ctTable').innerHTML=''; return; }
+  const rows=filtered();
+  const rVals=rowMeta[2], cVals=colMeta[2];
+  const present=(vals,key)=>vals.filter(v=>rows.some(r=>String(r[key])===v));
+  const R=present(rVals,rowK), C=present(cVals,colK);
+  const cell={}; R.forEach(rv=>{cell[rv]={};C.forEach(cv=>cell[rv][cv]=0);});
+  const rowTot={}, colTot={}; R.forEach(rv=>rowTot[rv]=0); C.forEach(cv=>colTot[cv]=0); let grand=0;
+  rows.forEach(r=>{ const rv=String(r[rowK]??''), cv=String(r[colK]??'');
+    if(cell[rv]&&cell[rv][cv]!==undefined){ cell[rv][cv]++; rowTot[rv]++; colTot[cv]++; grand++; } });
+  let h='<table><thead><tr><th></th>'+C.map(c=>`<th>${esc(c)}</th>`).join('')+'<th>Total</th></tr></thead><tbody>';
+  R.forEach(rv=>{ h+=`<tr><th>${esc(rv)}</th>`+C.map(cv=>{ const n=cell[rv][cv]; const pct=rowTot[rv]?Math.round(n/rowTot[rv]*100):0;
+    return `<td class="ct-cell">${n?n:'·'}${n?`<span class="pct">${pct}%</span>`:''}</td>`; }).join('')+`<td class="ct-cell"><b>${rowTot[rv]}</b></td></tr>`; });
+  h+='<tr><th>Total</th>'+C.map(cv=>`<td class="ct-cell"><b>${colTot[cv]}</b></td>`).join('')+`<td class="ct-cell"><b>${grand}</b></td></tr>`;
+  h+='</tbody></table>';
+  $('#ctTable').innerHTML=h;
+}
+
+function renderOpen(){
+  const k=$('#openQ').value; const meta=OPEN.find(o=>o[0]===k);
+  const rows=filtered();
+  const answers=rows.map(r=>({t:r[k], when:r.submitted_at_client||r.created_at}))
+    .filter(a=>a.t && String(a.t).trim());
+  let h=`<div class="muted" style="margin-bottom:12px;">${answers.length} of ${rows.length} left an answer.</div>`;
+  if(!answers.length) h+='<div class="empty">No answers yet.</div>';
+  h+=answers.map(a=>`<div class="opentext"><div class="meta">${new Date(a.when).toLocaleDateString()}</div><div class="txt">${esc(a.t)}</div></div>`).join('');
+  $('#openList').innerHTML=h;
+}
+
+function renderRaw(){
+  const rows=filtered();
+  const contacts=rows.filter(r=>r.email&&r.email.trim());
+  const cols=['created_at','q11_concept_clarity','q13_planning_fit','q15_useful_length','q29_buy_likelihood','q31_which_buy','q33_subscription','q35_preorder','email'];
+  let h='';
+  h+=`<div class="card span2" style="margin-bottom:16px;"><h3>Contacts</h3>
+    <div class="qmeta">${contacts.length} left an email (opt-in ${rows.filter(r=>r.product_updates_optin).length} · follow-up ${rows.filter(r=>r.followup_consent||r.q37_followup==='Yes').length})</div>`;
+  h+= contacts.length? '<div class="scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Updates</th><th>Follow-up</th></tr></thead><tbody>'+
+    contacts.map(r=>`<tr><td>${esc(r.name||'—')}</td><td>${esc(r.email)}</td><td>${r.product_updates_optin?'✓':'·'}</td><td>${(r.followup_consent||r.q37_followup==='Yes')?'✓':'·'}</td></tr>`).join('')+'</tbody></table></div>'
+    : '<div class="empty">No contacts yet.</div>';
+  h+='</div>';
+  h+=`<div class="muted" style="margin-bottom:10px;">Snapshot of key columns — use ⭳ CSV for the full data set.</div>`;
+  h+='<div class="scroll"><table><thead><tr>'+cols.map(c=>`<th>${esc(c.replace(/_/g,' '))}</th>`).join('')+'</tr></thead><tbody>';
+  h+=rows.map(r=>'<tr>'+cols.map(c=>{ let v=r[c]; if(c==='created_at') v=new Date(v).toLocaleString();
+    return `<td>${esc(v??'')}</td>`; }).join('')+'</tr>').join('');
+  h+='</tbody></table></div>';
+  $('#raw').innerHTML=h;
+}
+
+/* ═══════════════════════ FILTERS UI ═══════════════════════ */
+function initFilterControls(){
+  const fq=$('#filterQ');
+  fq.innerHTML='<option value="">— question —</option>'+SINGLE.concat(MULTI).map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join('');
+  fq.onchange=()=>{ const k=fq.value; const meta=[...SINGLE,...MULTI].find(s=>s[0]===k);
+    const fv=$('#filterV'); fv.innerHTML = meta? meta[2].map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('') : ''; };
+  fq.onchange();
+  $('#addFilter').onclick=()=>{ const k=fq.value, v=$('#filterV').value; if(!k||!v) return;
+    if(filters.some(f=>f.key===k&&f.value===v)) return;
+    filters.push({key:k,value:v,label:labelOf(k)}); renderFilters(); renderAll(); };
+  // crosstab + open selectors
+  $('#ctRow').innerHTML=SINGLE.map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join('');
+  $('#ctCol').innerHTML=SINGLE.map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join('');
+  $('#ctRow').value='q8_decide_ahead'; $('#ctCol').value='q9_trust_ahead';
+  $('#ctRow').onchange=renderCrosstab; $('#ctCol').onchange=renderCrosstab;
+  $('#openQ').innerHTML=OPEN.map(([k,l,key])=>`<option value="${k}">${esc(l)}${key?' — KEY':''}</option>`).join('');
+  $('#openQ').onchange=renderOpen;
+}
+function renderFilters(){
+  $('#filterChips').innerHTML=filters.map((f,i)=>`<span class="chip">${esc(f.label.split(' · ')[0])}: ${esc(f.value)} <button data-i="${i}">×</button></span>`).join('');
+  $('#filterCount').textContent = filters.length? `${filtered().length} of ${ROWS.length} match` : '';
+  $('#filterChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{ filters.splice(+b.dataset.i,1); renderFilters(); renderAll(); });
+}
+
+/* ═══════════════════════ ORCHESTRATION ═══════════════════════ */
+function renderAll(){
+  renderStats(); renderFilters();
+  renderOverview(); renderCrosstab(); renderOpen(); renderRaw();
+}
+function toCSV(){
+  if(!ROWS.length) return;
+  const keys=Object.keys(ROWS.reduce((a,r)=>{Object.keys(r).forEach(k=>a[k]=1);return a;},{}));
+  const escc=v=>{ if(v===null||v===undefined) return ''; if(Array.isArray(v)) v=v.join(' | ');
+    v=String(v); return /[",\n]/.test(v)? '"'+v.replace(/"/g,'""')+'"' : v; };
+  const lines=[keys.join(',')].concat(ROWS.map(r=>keys.map(k=>escc(r[k])).join(',')));
+  const blob=new Blob([lines.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='isobar_responses_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
+
+async function boot(){
+  $('#login').style.display='none'; $('#app').style.display='block';
+  $('#overview').innerHTML='<div class="spin">Loading responses…</div>';
+  try{ await fetchData(); initFilterControls(); renderAll(); }
+  catch(e){ console.error(e);
+    if(String(e).includes('401')||String(e).includes('refresh')){ clearSession(); showLogin('Session expired — sign in again.'); }
+    else $('#overview').innerHTML=`<div class="banner">Could not load: ${esc(String(e.message||e))}</div>`; }
+}
+function showLogin(msg){ $('#app').style.display='none'; $('#login').style.display='flex'; if(msg) $('#loginErr').textContent=msg; }
+
+/* tabs */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===t.dataset.tab));
+  $('#filterbar').style.display = ['overview','crosstab','open'].includes(t.dataset.tab)?'block':'none';
+});
+
+$('#loginForm').onsubmit=async e=>{ e.preventDefault();
+  const b=$('#loginBtn'); b.disabled=true; b.textContent='Signing in…'; $('#loginErr').textContent='';
+  try{ await login($('#email').value.trim(), $('#password').value); await boot(); }
+  catch(err){ $('#loginErr').textContent=err.message||'Sign-in failed'; }
+  finally{ b.disabled=false; b.textContent='Sign in'; }
+};
+$('#refreshBtn').onclick=async()=>{ $('#refreshBtn').textContent='↻ …'; try{ await fetchData(); renderAll(); }catch(e){console.error(e);} $('#refreshBtn').textContent='↻ Refresh'; };
+$('#csvBtn').onclick=toCSV;
+$('#logoutBtn').onclick=()=>{ clearSession(); showLogin(); };
+
+/* auto-resume */
+loadSession();
+if(session?.access_token && session.expires_at>Date.now()+30000) boot();
+else if(session?.refresh_token) refresh().then(boot).catch(()=>{ clearSession(); showLogin(); });
+</script>
+</body>
+</html>
