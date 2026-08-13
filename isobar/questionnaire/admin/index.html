@@ -223,7 +223,7 @@ const SINGLE = [
   ['q25_cable_bother','Q25 · Visible cable bother',['Not at all','A little','A lot, it would affect whether I buy']],
   ['q26_timber','Q26 · Timber preference',['Oak','Walnut','No preference','I would want a different material']],
   ['q28_price_reaction','Q28 · Reaction to planned prices',['Cheaper than I expected','About what I expected','More expensive than I expected','Far more expensive than I expected']],
-  ['q31_which_buy','Q31 · Which they would buy',['3-day, €249','5-day, €289','7-day, €329','None of them']],
+  ['q31_which_buy','Q31 · Which they would buy',['3-day, €249','5-day, €319','7-day, €389','None of them']],
   ['q32_gift','Q32 · Buy as a gift',['Yes','Maybe','No']],
   ['q33_subscription','Q33 · Would pay for subscription',['Yes','Maybe','No']],
   ['q34_sub_price','Q34 · Fair annual subscription price',['Under €15','€15 to €25','€25 to €40','More than €40']],
@@ -380,7 +380,7 @@ function intentCard(rows){
     <b style="color:var(--ok)">${fives} said 5 (${Math.round(fives/total*100)}%)</b> — the only score that counts as real intent.
     ${fours} said 4 (often just polite). Compare with Q31 below, where "None" is the honest no.</div>` : '';
   return `<div class="card"><h3>Q29 · Purchase intent (1–5)</h3>
-    <div class="qmeta">At €249 / €289 / €329 · n=${total}</div>${total?bars:'<div class="empty">No answers yet.</div>'}${note}</div>`;
+    <div class="qmeta">At €249 / €319 / €389 · n=${total}</div>${total?bars:'<div class="empty">No answers yet.</div>'}${note}</div>`;
 }
 
 function vanWestendorp(rows){
