@@ -184,6 +184,17 @@
   .day-ticks{ display:flex; justify-content:space-between; margin:4px 0 2px; }
   .day-ticks span{ flex:1; text-align:center; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-mute); border-left:1px solid var(--line); padding-top:4px; }
   .day-ticks span:first-child{ border-left:none; }
+  /* ── forecast mode switch (3b reveal) ── */
+  .mode-switch{ display:flex; gap:4px; margin:20px 0 12px; padding:4px; border:1px solid var(--line);
+    border-radius:12px; background:rgba(221,213,196,.02); }
+  .mode-btn{ flex:1; padding:9px 6px; background:none; border:0; border-radius:9px; cursor:pointer;
+    font-family:"Manrope",sans-serif; font-weight:500; font-size:.72rem; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--ink-mute); transition:color .25s,background .25s;
+    -webkit-tap-highlight-color:transparent; }
+  .mode-btn:hover{ color:var(--bone); }
+  .mode-btn.active{ color:var(--ink); background:rgba(221,213,196,.09); }
+  #modeBand{ transition:opacity .18s ease; }
+  #modeLabels{ min-height:1em; }
 
   /* ── timber swatches ── */
   .swatch{ width:34px; height:34px; border-radius:8px; border:1px solid var(--line-strong); flex:0 0 auto; }
@@ -376,12 +387,11 @@
 
         <div class="q" data-required data-type="radio" data-name="q6_checks_per_day">
           <p class="q-num">Question 6</p>
-          <p class="q-text">In season, how many times per day do you check a forecast?</p>
+          <p class="q-text">In season, how often do you check the forecast?</p>
           <div class="opts">
-            <label class="opt"><input type="radio" name="q6_checks_per_day" value="Once"><span class="mark"></span><span class="label">Once</span></label>
-            <label class="opt"><input type="radio" name="q6_checks_per_day" value="2 to 3 times"><span class="mark"></span><span class="label">2 to 3 times</span></label>
-            <label class="opt"><input type="radio" name="q6_checks_per_day" value="4 to 6 times"><span class="mark"></span><span class="label">4 to 6 times</span></label>
-            <label class="opt"><input type="radio" name="q6_checks_per_day" value="More than 6 times"><span class="mark"></span><span class="label">More than 6 times</span></label>
+            <label class="opt"><input type="radio" name="q6_checks_per_day" value="Once or twice a week"><span class="mark"></span><span class="label">Once or twice a week</span></label>
+            <label class="opt"><input type="radio" name="q6_checks_per_day" value="Most days"><span class="mark"></span><span class="label">Most days</span></label>
+            <label class="opt"><input type="radio" name="q6_checks_per_day" value="Several times a day"><span class="mark"></span><span class="label">Several times a day</span></label>
           </div>
         </div>
 
@@ -463,10 +473,17 @@
 
         <div class="explain">
           <p>ISOBAR shows the <strong>forecast as a band of colour</strong>. Time runs left to right across the face — the next several days at a glance. The colour at each point tells you the conditions expected at that moment.</p>
-          <div class="legend-band" aria-hidden="true"></div>
-          <div class="legend-labels"><span>Calm / fair</span><span>Building</span><span>Strong / stormy</span></div>
+          <div class="mode-switch" role="tablist" aria-label="Forecast modes">
+            <button type="button" class="mode-btn active" data-mode="wind" role="tab" aria-selected="true">Wind</button>
+            <button type="button" class="mode-btn" data-mode="weather" role="tab" aria-selected="false">Weather</button>
+            <button type="button" class="mode-btn" data-mode="swell" role="tab" aria-selected="false">Swell</button>
+            <button type="button" class="mode-btn" data-mode="tide" role="tab" aria-selected="false">Tide</button>
+          </div>
+          <div class="legend-band" id="modeBand" style="background:linear-gradient(90deg,#23407a,#5aa6d8,#6bbf5a,#e8a63a,#cf3b2c,#7a3fa0)" aria-hidden="true"></div>
+          <div class="legend-labels" id="modeLabels"><span>0</span><span>5–10</span><span>15–20</span><span>25–30</span><span>35–40</span><span>45+ kts</span></div>
           <div class="day-ticks" aria-hidden="true"><span>Today</span><span>+1</span><span>+2</span><span>+3</span><span>+4</span></div>
-          <p style="margin-top:18px;">No app to open, no screen to read. It sits on a desk or hangs on a wall, and one glance across the room tells you what the days ahead will hold. Tap it to switch between wind, weather and swell — or stand it upright for live conditions right now.</p>
+          <p class="q-media-cap" style="margin-top:10px;">Tap a mode to see how each one reads. Time runs left to right; colour shows the conditions.</p>
+          <p style="margin-top:18px;">No app to open, no screen to read. It sits on a desk or hangs on a wall, and one glance across the room tells you what the days ahead will hold. Tap it to switch between wind, weather, swell and tide — or stand it upright for live conditions right now.</p>
         </div>
 
         <div class="q" data-required data-type="radio" data-name="q11_concept_clarity">
@@ -1024,6 +1041,32 @@
       updateRankIndices(); save();
     });
     renderRank(shuffle(rankItems));
+
+    // ── Section 3b: forecast mode switch (swaps gradient band + labels) ──
+    const MODES = {
+      wind:    { grad:'linear-gradient(90deg,#23407a,#5aa6d8,#6bbf5a,#e8a63a,#cf3b2c,#7a3fa0)', labels:['0','5–10','15–20','25–30','35–40','45+ kts'] },
+      weather: { grad:'linear-gradient(90deg,#e8c34a,#9a9c9a,#7fb0d8,#2b4a8c,#b5322a)',        labels:['Sunny','Overcast','Drizzle','Heavy rain','Storm'] },
+      swell:   { grad:'linear-gradient(90deg,#2bb6a6,#8fc06a,#e4c94e,#e2952f,#b5322a)',        labels:['Flat','Building','Heavy'] },
+      tide:    { grad:'linear-gradient(90deg,#0e2f4a,#2b6f9c,#5aa6d8,#9fdcef)',                labels:['Low','Rising','High'] },
+    };
+    const modeSwitch = document.querySelector('.mode-switch');
+    const modeBand = document.getElementById('modeBand');
+    const modeLabels = document.getElementById('modeLabels');
+    if(modeSwitch && modeBand && modeLabels){
+      const setMode = key => {
+        const m = MODES[key]; if(!m) return;
+        modeBand.style.opacity = '0';
+        setTimeout(()=>{ modeBand.style.background = m.grad;
+          modeLabels.innerHTML = m.labels.map(l=>`<span>${l}</span>`).join('');
+          modeBand.style.opacity = '1'; }, 130);
+      };
+      modeSwitch.addEventListener('click', e => {
+        const btn = e.target.closest('.mode-btn'); if(!btn) return;
+        modeSwitch.querySelectorAll('.mode-btn').forEach(b=>{
+          const on = b===btn; b.classList.toggle('active',on); b.setAttribute('aria-selected',on); });
+        setMode(btn.dataset.mode);
+      });
+    }
 
     // ── "Other" text reveal for checkbox groups ──
     form.querySelectorAll('.other-text').forEach(box=>{
