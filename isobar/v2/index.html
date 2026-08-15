@@ -22,7 +22,8 @@
   }
 
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{width:100%}
+  html{width:100%; overflow-x:hidden}
+  body{width:100%}
 
   body{
     font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -31,7 +32,9 @@
     min-height:100vh;
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
-    overflow-x:hidden;
+    /* horizontal overflow from the full-bleed elements is clipped on <html>
+       (overflow-x:clip) instead of here — clipping on <body> made it a scroll
+       container and jittered the sticky scrolly video sideways while scrolling. */
   }
 
   /* ── ISOBAR BG CANVAS (exact almanac.works implementation) ── */
@@ -196,8 +199,9 @@
   .detail-duo img{ width:100%; aspect-ratio:16/10; object-fit:cover; border:1px solid var(--line); border-radius:14px; display:block; }
   @media(max-width:640px){ .detail-duo{ grid-template-columns:1fr; } }
 
-  /* ── full-bleed (edge-to-edge) images ── */
-  .media.fullbleed{ position:relative; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw; width:100vw; max-width:100vw; border:none; border-radius:0; aspect-ratio:2.6/1; }
+  /* ── full-bleed (edge-to-edge) images: content-width, not 100vw, so nothing
+     overflows past the scrollbar (avoids an 8px horizontal scroll) ── */
+  .media.fullbleed{ position:relative; width:100%; margin-left:0; margin-right:0; border:none; border-radius:0; aspect-ratio:2.6/1; }
 
   /* ── ported from V1: details cards ── */
   .details-cards{ margin-top:clamp(34px,5vw,60px); display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
@@ -219,7 +223,7 @@
   @media(max-width:640px){ .split-fw{ grid-template-columns:1fr; } }
 
   /* ── full-width details grid ── */
-  .details-cards-fw{ position:relative; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw; width:100vw; max-width:100vw; border-left:none; border-right:none; border-radius:0; }
+  .details-cards-fw{ position:relative; width:100%; border-left:none; border-right:none; border-radius:0; }
 
   /* ── scrollytelling: copy + crossfading video pinned together ── */
   /* full-bleed to the content width (not 100vw) so the sticky pin lands on an
@@ -462,8 +466,8 @@
         <p class="eyebrow">03 · The object</p>
         <h2 class="h2">Hand-finished, built to live with.</h2>
         <p class="lede">Solid timber, and simple to live with. Tap the top to switch modes, and a built-in sensor keeps it bright by day and soft at night.</p>
-        <div class="media filled fullbleed"><img src="../Assets/Isobar_object_bodies.jpg" alt="Two ISOBAR bodies routed from solid oak, resting on the workbench"></div>
       </div>
+      <div class="media filled fullbleed"><img src="../Assets/Isobar_object_bodies.jpg" alt="Two ISOBAR bodies routed from solid oak, resting on the workbench"></div>
     </section>
 
     <!-- ══ 04 — the details ══ -->
@@ -503,8 +507,8 @@
         <p class="eyebrow">05 · Sustainability</p>
         <h2 class="h2">Made to last, and to give back.</h2>
         <p class="lede">Every ISOBAR is cut from FSC-certified timber, responsibly grown and traceable back to the forest. And for every one we sell, we plant a tree.</p>
-        <div class="media filled fullbleed"><img src="../Assets/Isobar_oak_roots.jpg" alt="A finished ISOBAR resting in the mossy roots of an old tree, among autumn leaves"></div>
       </div>
+      <div class="media filled fullbleed"><img src="../Assets/Isobar_oak_roots.jpg" alt="A finished ISOBAR resting in the mossy roots of an old tree, among autumn leaves"></div>
     </section>
 
     <!-- ══ 06 — models ══ -->
